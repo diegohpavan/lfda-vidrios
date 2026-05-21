@@ -25,11 +25,62 @@ body.light{
 }
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;transition:background var(--t),color var(--t)}
 
+/* ══ LOGIN ══ */
+#login-screen{
+  position:fixed;inset:0;background:var(--bg);z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;
+}
+.login-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:20px;
+  padding:36px 32px;width:100%;max-width:400px;
+}
+.login-logo{margin-bottom:28px;display:flex;justify-content:center}
+.login-title{font-size:14px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;text-align:center;margin-bottom:24px}
+.user-btn{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;border-radius:12px;cursor:pointer;
+  border:1px solid var(--border);background:var(--bg3);
+  transition:all var(--t);margin-bottom:8px;width:100%;
+}
+.user-btn:hover{border-color:var(--text2);background:var(--bg4)}
+.user-btn.selected{border-color:var(--text);background:var(--bg4)}
+.user-avatar{
+  width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;flex-shrink:0;
+  background:var(--bg4);color:var(--text2);
+}
+.user-avatar.admin{background:var(--text);color:var(--bg)}
+.user-avatar.gerente{background:#8b5cf620;color:#a78bfa;border:1px solid #8b5cf640}
+.user-avatar.lider{background:#3b82f620;color:var(--info);border:1px solid #3b82f640}
+.user-info-name{font-size:14px;font-weight:500;color:var(--text);text-align:left}
+.user-info-role{font-size:11px;color:var(--text3);text-align:left}
+
+/* PIN PAD */
+.pin-section{margin-top:20px;display:none}
+.pin-section.visible{display:block}
+.pin-label{font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;text-align:center;margin-bottom:12px}
+.pin-dots{display:flex;justify-content:center;gap:10px;margin-bottom:20px}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border2);background:transparent;transition:all 0.15s}
+.pin-dot.filled{background:var(--text);border-color:var(--text)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:240px;margin:0 auto}
+.pin-key{
+  height:52px;border-radius:10px;border:1px solid var(--border);
+  background:var(--bg3);color:var(--text);font-size:18px;font-weight:500;
+  cursor:pointer;transition:all var(--t);display:flex;align-items:center;justify-content:center;
+}
+.pin-key:hover{background:var(--bg4);border-color:var(--text2)}
+.pin-key:active{transform:scale(0.95)}
+.pin-key.del{font-size:14px;color:var(--text3)}
+.pin-key.enter{background:var(--text);color:var(--bg);font-size:13px;font-weight:600}
+.pin-key.enter:hover{opacity:0.85}
+.pin-error{color:var(--danger);font-size:12px;text-align:center;margin-top:10px;min-height:18px}
+
 /* TOPBAR */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
 .logo-svg{height:28px;width:auto;display:block}
 .topbar-right{display:flex;align-items:center;gap:8px}
-.badge-admin{background:var(--text);color:var(--bg);font-size:10px;font-weight:600;letter-spacing:1px;padding:4px 10px;border-radius:4px;text-transform:uppercase;white-space:nowrap;transition:background var(--t),color var(--t)}
+.badge-user{background:var(--text);color:var(--bg);font-size:10px;font-weight:600;letter-spacing:1px;padding:4px 10px;border-radius:4px;text-transform:uppercase;white-space:nowrap;transition:background var(--t),color var(--t);cursor:pointer}
 .btn-icon{width:34px;height:34px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--t);font-size:17px}
 .btn-icon:hover{background:var(--bg3);color:var(--text)}
 
@@ -42,6 +93,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .nav-item:hover{background:var(--bg3);color:var(--text)}
 .nav-item.active{background:var(--text);color:var(--bg)}
 .nav-item.active i{color:var(--bg)}
+.nav-item.hidden{display:none}
 .main{flex:1;padding:26px;overflow-y:auto;background:var(--bg)}
 
 /* VIEWS */
@@ -50,7 +102,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .page-title{font-size:26px;font-weight:600;letter-spacing:-0.5px;line-height:1}
 .page-sub{font-size:12px;color:var(--text3);margin-top:4px}
 
-/* STAT CARDS */
+/* STATS */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
 .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--card-r);padding:16px 18px}
 .stat-label{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
@@ -67,14 +119,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .form-grid{display:grid;gap:12px}
 .form-grid-2{grid-template-columns:1fr 1fr}
 .form-grid-3{grid-template-columns:1fr 1fr 1fr}
-.form-grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
 .form-group{display:flex;flex-direction:column;gap:4px}
 .form-label{font-size:10px;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;font-weight:500}
 .form-input,.form-select{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-size:13px;font-family:inherit;transition:border-color var(--t);outline:none;width:100%}
 .form-input:focus,.form-select:focus{border-color:var(--text2)}
 .form-select option{background:var(--bg3)}
 
-/* TABLES */
+/* TABLE */
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);font-weight:500}
@@ -87,7 +138,6 @@ tr:hover td{background:var(--bg3);color:var(--text)}
 .btn-primary{background:var(--text);color:var(--bg)}.btn-primary:hover{opacity:0.85}
 .btn-outline{background:transparent;border-color:var(--border2);color:var(--text2)}.btn-outline:hover{border-color:var(--text2);color:var(--text)}
 .btn-danger{background:#ef444415;border-color:#ef444440;color:var(--danger)}.btn-danger:hover{background:#ef444425}
-.btn-success{background:#22c55e15;border-color:#22c55e40;color:var(--success)}
 
 /* PULMONES */
 .pulmones-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
@@ -119,6 +169,7 @@ tr:hover td{background:var(--bg3);color:var(--text)}
 .pill-danger{background:#ef444420;color:var(--danger)}
 .pill-info{background:#3b82f620;color:var(--info)}
 .pill-neutral{background:var(--bg4);color:var(--text2)}
+.pill-purple{background:#8b5cf620;color:#a78bfa}
 
 /* TURNO TAGS */
 .tag-turno{font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:4px;font-weight:600}
@@ -133,7 +184,7 @@ tr:hover td{background:var(--bg3);color:var(--text)}
 .flujo-arrow{color:var(--text3);font-size:16px;margin:0 4px;padding-top:18px}
 .flujo-pulmon{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--info);background:#3b82f615;border:1px solid #3b82f630;border-radius:4px;padding:2px 5px}
 
-/* REPORT TYPE CARDS */
+/* REPORT TYPE */
 .report-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
 .report-type-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:all var(--t);text-align:center}
 .report-type-card:hover,.report-type-card.selected{border-color:var(--text2);background:var(--bg4)}
@@ -170,12 +221,56 @@ tr:hover td{background:var(--bg3);color:var(--text)}
 /* RESPONSIVE */
 @media(max-width:1100px){.stats-grid{grid-template-columns:1fr 1fr}.equipo-row{grid-template-columns:120px 1fr 80px 80px 60px}}
 @media(max-width:900px){.pulmones-grid{grid-template-columns:1fr 1fr}.admin-grid{grid-template-columns:1fr}.sidebar{width:190px}}
-@media(max-width:650px){.sidebar{display:none}.stats-grid{grid-template-columns:1fr 1fr}.form-grid-3{grid-template-columns:1fr 1fr}.form-grid-4{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.sidebar{display:none}.stats-grid{grid-template-columns:1fr 1fr}.form-grid-3{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 
-<!-- ══ TOPBAR ══ -->
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg viewBox="0 0 310 72" style="height:36px;width:auto">
+        <polyline points="246,3 262,3 262,19" fill="none" stroke="var(--logo-color)" stroke-width="3" stroke-linecap="square"/>
+        <text x="2" y="34" font-family="'Arial Black','Arial',sans-serif" font-weight="900" font-size="32" fill="var(--logo-color)" letter-spacing="0.5">LA FÁBRICA</text>
+        <text x="2" y="68" font-family="'Arial Black','Arial',sans-serif" font-weight="900" font-size="32" fill="var(--logo-color)" letter-spacing="0.5">DE ABERTURAS</text>
+      </svg>
+    </div>
+    <div class="login-title">Seleccioná tu usuario</div>
+
+    <div id="user-list-login"></div>
+
+    <div class="pin-section" id="pin-section">
+      <div class="divider"></div>
+      <div class="pin-label" id="pin-label">Ingresá tu PIN</div>
+      <div class="pin-dots">
+        <div class="pin-dot" id="dot-0"></div>
+        <div class="pin-dot" id="dot-1"></div>
+        <div class="pin-dot" id="dot-2"></div>
+        <div class="pin-dot" id="dot-3"></div>
+      </div>
+      <div class="pin-pad">
+        <div class="pin-key" onclick="pinPress('1')">1</div>
+        <div class="pin-key" onclick="pinPress('2')">2</div>
+        <div class="pin-key" onclick="pinPress('3')">3</div>
+        <div class="pin-key" onclick="pinPress('4')">4</div>
+        <div class="pin-key" onclick="pinPress('5')">5</div>
+        <div class="pin-key" onclick="pinPress('6')">6</div>
+        <div class="pin-key" onclick="pinPress('7')">7</div>
+        <div class="pin-key" onclick="pinPress('8')">8</div>
+        <div class="pin-key" onclick="pinPress('9')">9</div>
+        <div class="pin-key del" onclick="pinDel()"><i class="ri-delete-back-2-line"></i></div>
+        <div class="pin-key" onclick="pinPress('0')">0</div>
+        <div class="pin-key enter" onclick="pinEnter()">OK</div>
+      </div>
+      <div class="pin-error" id="pin-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app" style="display:none">
+
 <div class="topbar">
   <svg class="logo-svg" viewBox="0 0 310 72" xmlns="http://www.w3.org/2000/svg">
     <polyline points="246,3 262,3 262,19" fill="none" stroke="var(--logo-color)" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter"/>
@@ -183,42 +278,38 @@ tr:hover td{background:var(--bg3);color:var(--text)}
     <text x="2" y="68" font-family="'Arial Black','Arial',sans-serif" font-weight="900" font-size="32" fill="var(--logo-color)" letter-spacing="0.5">DE ABERTURAS</text>
   </svg>
   <div class="topbar-right">
-    <span class="badge-admin" id="badge-user"><i class="ri-shield-user-line" style="margin-right:3px;font-size:11px"></i>Diego Pavan · Admin</span>
+    <span class="badge-user" id="badge-user" onclick="cerrarSesion()" title="Cerrar sesión"></span>
     <button class="btn-icon" onclick="toggleTheme()" title="Cambiar tema"><i id="themeIcon" class="ri-moon-line"></i></button>
-    <button class="btn-icon" title="Notificaciones" onclick="toast('Sin notificaciones nuevas')"><i class="ri-notification-3-line"></i></button>
+    <button class="btn-icon" onclick="cerrarSesion()" title="Cerrar sesión"><i class="ri-logout-box-line"></i></button>
   </div>
 </div>
 
 <div class="layout">
-
-<!-- ══ SIDEBAR ══ -->
-<nav class="sidebar" id="sidebar">
+<nav class="sidebar">
   <div class="nav-section">Principal</div>
-  <div class="nav-item active" onclick="showView('dashboard',this)"><i class="ri-dashboard-line"></i> Dashboard</div>
-  <div class="nav-item" onclick="showView('carga',this)"><i class="ri-edit-2-line"></i> Cargar Turno</div>
-  <div class="nav-item" onclick="showView('historico',this)"><i class="ri-table-line"></i> Histórico</div>
+  <div class="nav-item active" id="nav-dashboard" onclick="showView('dashboard',this)"><i class="ri-dashboard-line"></i> Dashboard</div>
+  <div class="nav-item hidden" id="nav-carga" onclick="showView('carga',this)"><i class="ri-edit-2-line"></i> Cargar Turno</div>
+  <div class="nav-item" id="nav-historico" onclick="showView('historico',this)"><i class="ri-table-line"></i> Histórico</div>
   <div class="nav-section">Reportes</div>
-  <div class="nav-item" onclick="showView('reportes',this)"><i class="ri-file-pdf-line"></i> Generar PDF</div>
-  <div class="nav-section">Admin</div>
-  <div class="nav-item admin-only" onclick="showView('admin',this)"><i class="ri-settings-4-line"></i> Configuración</div>
-  <div class="nav-item admin-only" onclick="showView('usuarios',this)"><i class="ri-team-line"></i> Usuarios</div>
+  <div class="nav-item" id="nav-reportes" onclick="showView('reportes',this)"><i class="ri-file-pdf-line"></i> Generar PDF</div>
+  <div class="nav-section hidden" id="nav-section-admin">Admin</div>
+  <div class="nav-item hidden" id="nav-admin" onclick="showView('admin',this)"><i class="ri-settings-4-line"></i> Configuración</div>
+  <div class="nav-item hidden" id="nav-usuarios" onclick="showView('usuarios',this)"><i class="ri-team-line"></i> Usuarios</div>
 </nav>
 
 <main class="main">
 
-  <!-- ══════════════════════════════════
-       DASHBOARD
-  ══════════════════════════════════ -->
+  <!-- DASHBOARD -->
   <div class="view active" id="view-dashboard">
     <div class="page-header">
       <div class="page-title">Dashboard</div>
-      <div class="page-sub" id="dash-sub">Cargando último registro...</div>
+      <div class="page-sub" id="dash-sub">Cargando...</div>
     </div>
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-label">Total Procesados</div><div class="stat-value" id="d-procesados">—</div><div class="stat-meta" id="d-proc-meta"></div></div>
       <div class="stat-card"><div class="stat-label">DVH Auto + Manual</div><div class="stat-value success" id="d-dvh">—</div><div class="stat-meta" id="d-dvh-meta"></div></div>
       <div class="stat-card"><div class="stat-label">Rechazos</div><div class="stat-value warn" id="d-rechazos">—</div><div class="stat-meta" id="d-rech-meta"></div></div>
-      <div class="stat-card"><div class="stat-label">Balance Línea</div><div class="stat-value success" id="d-balance">—</div><div class="stat-meta" id="d-bal-meta"></div></div>
+      <div class="stat-card"><div class="stat-label">Balance Línea</div><div class="stat-value" id="d-balance">—</div><div class="stat-meta" id="d-bal-meta"></div></div>
     </div>
     <div class="card">
       <div class="card-title"><i class="ri-git-branch-line"></i> Flujo de línea</div>
@@ -251,12 +342,9 @@ tr:hover td{background:var(--bg3);color:var(--text)}
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       CARGA TURNO
-  ══════════════════════════════════ -->
+  <!-- CARGA TURNO -->
   <div class="view" id="view-carga">
-    <div class="page-header"><div class="page-title">Cargar Turno</div><div class="page-sub">Solo líderes de sector · Los datos se guardan localmente en este dispositivo</div></div>
-
+    <div class="page-header"><div class="page-title">Cargar Turno</div><div class="page-sub" id="carga-sub"></div></div>
     <div class="card">
       <div class="card-title"><i class="ri-calendar-line"></i> Datos del turno</div>
       <div class="form-grid form-grid-3">
@@ -265,49 +353,15 @@ tr:hover td{background:var(--bg3);color:var(--text)}
         <div class="form-group"><label class="form-label">Responsable</label><input type="text" class="form-input" id="f-resp" placeholder="Nombre del líder"></div>
       </div>
     </div>
-
     <div class="card">
-      <div class="card-title"><i class="ri-stack-line"></i> Pulmones intermedios · Stock entre procesos</div>
+      <div class="card-title"><i class="ri-stack-line"></i> Pulmones intermedios</div>
       <div class="pulmones-grid">
-        <div class="pulmon-card">
-          <div class="pulmon-tag">P1</div>
-          <div class="pulmon-label">Antes de Cortadora<br>Abastecedor → Turomas</div>
-          <div class="pulmon-inputs">
-            <div><div class="pulmon-mini-label">Inicio turno</div><input type="number" class="form-input" id="p1i" placeholder="0" oninput="calcVar('p1')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div>
-            <div><div class="pulmon-mini-label">Final turno</div><input type="number" class="form-input" id="p1f" placeholder="0" oninput="calcVar('p1')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div>
-          </div>
-          <div class="variacion" id="var-p1" style="color:var(--text3)">Δ —</div>
-        </div>
-        <div class="pulmon-card">
-          <div class="pulmon-tag">P2</div>
-          <div class="pulmon-label">Después de Cortadora<br>Turomas → Canteadora</div>
-          <div class="pulmon-inputs">
-            <div><div class="pulmon-mini-label">Inicio turno</div><input type="number" class="form-input" id="p2i" placeholder="0" oninput="calcVar('p2')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div>
-            <div><div class="pulmon-mini-label">Final turno</div><input type="number" class="form-input" id="p2f" placeholder="0" oninput="calcVar('p2')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div>
-          </div>
-          <div class="variacion" id="var-p2" style="color:var(--text3)">Δ —</div>
-        </div>
-        <div class="pulmon-card">
-          <div class="pulmon-tag">P3a</div>
-          <div class="pulmon-label">Canteadora<br>→ DVH Automática</div>
-          <div class="pulmon-inputs">
-            <div><div class="pulmon-mini-label">Inicio turno</div><input type="number" class="form-input" id="p3ai" placeholder="0" oninput="calcVar('p3a')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div>
-            <div><div class="pulmon-mini-label">Final turno</div><input type="number" class="form-input" id="p3af" placeholder="0" oninput="calcVar('p3a')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div>
-          </div>
-          <div class="variacion" id="var-p3a" style="color:var(--text3)">Δ —</div>
-        </div>
-        <div class="pulmon-card">
-          <div class="pulmon-tag">P3b</div>
-          <div class="pulmon-label">Canteadora<br>→ DVH Manual</div>
-          <div class="pulmon-inputs">
-            <div><div class="pulmon-mini-label">Inicio turno</div><input type="number" class="form-input" id="p3bi" placeholder="0" oninput="calcVar('p3b')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div>
-            <div><div class="pulmon-mini-label">Final turno</div><input type="number" class="form-input" id="p3bf" placeholder="0" oninput="calcVar('p3b')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div>
-          </div>
-          <div class="variacion" id="var-p3b" style="color:var(--text3)">Δ —</div>
-        </div>
+        <div class="pulmon-card"><div class="pulmon-tag">P1</div><div class="pulmon-label">Antes de Cortadora<br>Abastecedor → Turomas</div><div class="pulmon-inputs"><div><div class="pulmon-mini-label">Inicio turno</div><input type="number" class="form-input" id="p1i" placeholder="0" oninput="calcVar('p1')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div><div><div class="pulmon-mini-label">Final turno</div><input type="number" class="form-input" id="p1f" placeholder="0" oninput="calcVar('p1')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div></div><div class="variacion" id="var-p1" style="color:var(--text3)">Δ —</div></div>
+        <div class="pulmon-card"><div class="pulmon-tag">P2</div><div class="pulmon-label">Después de Cortadora<br>Turomas → Canteadora</div><div class="pulmon-inputs"><div><div class="pulmon-mini-label">Inicio turno</div><input type="number" class="form-input" id="p2i" placeholder="0" oninput="calcVar('p2')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div><div><div class="pulmon-mini-label">Final turno</div><input type="number" class="form-input" id="p2f" placeholder="0" oninput="calcVar('p2')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div></div><div class="variacion" id="var-p2" style="color:var(--text3)">Δ —</div></div>
+        <div class="pulmon-card"><div class="pulmon-tag">P3a</div><div class="pulmon-label">Canteadora<br>→ DVH Automática</div><div class="pulmon-inputs"><div><div class="pulmon-mini-label">Inicio turno</div><input type="number" class="form-input" id="p3ai" placeholder="0" oninput="calcVar('p3a')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div><div><div class="pulmon-mini-label">Final turno</div><input type="number" class="form-input" id="p3af" placeholder="0" oninput="calcVar('p3a')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div></div><div class="variacion" id="var-p3a" style="color:var(--text3)">Δ —</div></div>
+        <div class="pulmon-card"><div class="pulmon-tag">P3b</div><div class="pulmon-label">Canteadora<br>→ DVH Manual</div><div class="pulmon-inputs"><div><div class="pulmon-mini-label">Inicio turno</div><input type="number" class="form-input" id="p3bi" placeholder="0" oninput="calcVar('p3b')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div><div><div class="pulmon-mini-label">Final turno</div><input type="number" class="form-input" id="p3bf" placeholder="0" oninput="calcVar('p3b')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div></div><div class="variacion" id="var-p3b" style="color:var(--text3)">Δ —</div></div>
       </div>
     </div>
-
     <div class="card">
       <div class="card-title"><i class="ri-tools-line"></i> Producción por equipo</div>
       <div style="display:grid;grid-template-columns:150px 1fr 95px 95px 70px;gap:8px;margin-bottom:10px">
@@ -320,61 +374,41 @@ tr:hover td{background:var(--bg3);color:var(--text)}
       <div id="equipos-form"></div>
       <div class="divider"></div>
       <div style="display:grid;grid-template-columns:150px 1fr 95px 95px 70px;gap:8px;align-items:center">
-        <div style="font-size:12px;font-weight:600;color:var(--text)">TOTALES</div>
-        <div></div>
+        <div style="font-size:12px;font-weight:600;color:var(--text)">TOTALES</div><div></div>
         <div style="font-size:22px;font-weight:600;letter-spacing:-1px" id="tot-proc">0</div>
         <div style="font-size:22px;font-weight:600;letter-spacing:-1px;color:var(--warn)" id="tot-rech">0</div>
         <div style="font-size:13px;font-weight:600" id="tot-pct">0%</div>
       </div>
     </div>
-
     <div class="section-actions">
       <button class="btn btn-outline" onclick="limpiarForm()"><i class="ri-delete-bin-line"></i> Limpiar</button>
       <button class="btn btn-primary" onclick="guardarTurno()"><i class="ri-save-line"></i> Guardar Turno</button>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       HISTÓRICO
-  ══════════════════════════════════ -->
+  <!-- HISTÓRICO -->
   <div class="view" id="view-historico">
     <div class="page-header"><div class="page-title">Histórico</div><div class="page-sub">Registro completo de producción por turno</div></div>
     <div class="filter-bar">
-      <select id="hist-tipo" onchange="filtrarHistorico()">
-        <option value="all">Todos los turnos</option>
-        <option value="Mañana">Mañana</option>
-        <option value="Tarde">Tarde</option>
-        <option value="Noche">Noche</option>
-      </select>
+      <select id="hist-tipo" onchange="filtrarHistorico()"><option value="all">Todos los turnos</option><option value="Mañana">Mañana</option><option value="Tarde">Tarde</option><option value="Noche">Noche</option></select>
       <input type="date" id="hist-desde" onchange="filtrarHistorico()">
       <input type="date" id="hist-hasta" onchange="filtrarHistorico()">
-      <button class="btn btn-outline" onclick="resetFiltros()"><i class="ri-refresh-line"></i> Limpiar filtros</button>
-      <button class="btn btn-primary" onclick="irAReportes()"><i class="ri-file-pdf-line"></i> Exportar PDF</button>
+      <button class="btn btn-outline" onclick="resetFiltros()"><i class="ri-refresh-line"></i> Limpiar</button>
+      <button class="btn btn-primary" onclick="showView('reportes',document.getElementById('nav-reportes'))"><i class="ri-file-pdf-line"></i> Exportar PDF</button>
     </div>
     <div class="card">
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>Fecha</th><th>Turno</th><th>Responsable</th>
-              <th>P1 Ini</th><th>P1 Fin</th><th>P2 Ini</th><th>P2 Fin</th>
-              <th>Cortados</th><th>Canteados</th><th>DVH Auto</th><th>DVH Manual</th>
-              <th>Rechazos</th><th>% Rec.</th><th>Balance</th>
-              <th class="admin-only"></th>
-            </tr>
-          </thead>
+          <thead><tr><th>Fecha</th><th>Turno</th><th>Responsable</th><th>P1 Ini</th><th>P1 Fin</th><th>P2 Ini</th><th>P2 Fin</th><th>Cortados</th><th>Canteados</th><th>DVH Auto</th><th>DVH Manual</th><th>Rechazos</th><th>% Rec.</th><th>Balance</th><th id="hist-del-col"></th></tr></thead>
           <tbody id="hist-body"></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       REPORTES PDF
-  ══════════════════════════════════ -->
+  <!-- REPORTES -->
   <div class="view" id="view-reportes">
     <div class="page-header"><div class="page-title">Generar Reporte PDF</div><div class="page-sub">Con firma LFDA · Fondo negro</div></div>
-
     <div class="card">
       <div class="card-title"><i class="ri-file-chart-line"></i> Tipo de reporte</div>
       <div class="report-options">
@@ -383,74 +417,26 @@ tr:hover td{background:var(--bg3);color:var(--text)}
         <div class="report-type-card" id="rt-rango" onclick="selectReportType('rango')"><i class="ri-calendar-range-line"></i><p>Rango de fechas</p><span>Desde / hasta personalizado</span></div>
         <div class="report-type-card" id="rt-turno" onclick="selectReportType('turno')"><i class="ri-time-line"></i><p>Por turno</p><span>Filtrado por turno específico</span></div>
       </div>
-
-      <div id="rep-form-dia">
-        <div class="form-grid form-grid-2">
-          <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input" id="rep-dia"></div>
-          <div class="form-group"><label class="form-label">Turno (opcional)</label><select class="form-select" id="rep-turno-dia"><option value="">Todos los turnos</option><option>Mañana</option><option>Tarde</option><option>Noche</option></select></div>
-        </div>
-      </div>
-      <div id="rep-form-mes" style="display:none">
-        <div class="form-grid form-grid-2">
-          <div class="form-group"><label class="form-label">Mes</label><input type="month" class="form-input" id="rep-mes"></div>
-        </div>
-      </div>
-      <div id="rep-form-rango" style="display:none">
-        <div class="form-grid form-grid-2">
-          <div class="form-group"><label class="form-label">Desde</label><input type="date" class="form-input" id="rep-desde"></div>
-          <div class="form-group"><label class="form-label">Hasta</label><input type="date" class="form-input" id="rep-hasta"></div>
-        </div>
-      </div>
-      <div id="rep-form-turno" style="display:none">
-        <div class="form-grid form-grid-2">
-          <div class="form-group"><label class="form-label">Turno</label><select class="form-select" id="rep-turno-sel"><option>Mañana</option><option>Tarde</option><option>Noche</option></select></div>
-          <div class="form-group"><label class="form-label">Mes</label><input type="month" class="form-input" id="rep-turno-mes"></div>
-        </div>
-      </div>
+      <div id="rep-form-dia"><div class="form-grid form-grid-2"><div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input" id="rep-dia"></div><div class="form-group"><label class="form-label">Turno (opcional)</label><select class="form-select" id="rep-turno-dia"><option value="">Todos</option><option>Mañana</option><option>Tarde</option><option>Noche</option></select></div></div></div>
+      <div id="rep-form-mes" style="display:none"><div class="form-grid form-grid-2"><div class="form-group"><label class="form-label">Mes</label><input type="month" class="form-input" id="rep-mes"></div></div></div>
+      <div id="rep-form-rango" style="display:none"><div class="form-grid form-grid-2"><div class="form-group"><label class="form-label">Desde</label><input type="date" class="form-input" id="rep-desde"></div><div class="form-group"><label class="form-label">Hasta</label><input type="date" class="form-input" id="rep-hasta"></div></div></div>
+      <div id="rep-form-turno" style="display:none"><div class="form-grid form-grid-2"><div class="form-group"><label class="form-label">Turno</label><select class="form-select" id="rep-turno-sel"><option>Mañana</option><option>Tarde</option><option>Noche</option></select></div><div class="form-group"><label class="form-label">Mes</label><input type="month" class="form-input" id="rep-turno-mes"></div></div></div>
     </div>
-
     <div class="card">
-      <div class="card-title"><i class="ri-palette-line"></i> Opciones del informe</div>
+      <div class="card-title"><i class="ri-palette-line"></i> Opciones</div>
       <div class="form-grid form-grid-3">
-        <div class="form-group"><label class="form-label">Contenido</label>
-          <select class="form-select" id="rep-contenido">
-            <option>Pulmones + Producción + Balance</option>
-            <option>Solo producción</option>
-            <option>Solo pulmones</option>
-            <option>Resumen ejecutivo</option>
-          </select>
-        </div>
-        <div class="form-group"><label class="form-label">Firma</label>
-          <select class="form-select" id="rep-firma">
-            <option value="negro">LFDA · Fondo negro</option>
-            <option value="blanco">LFDA · Fondo blanco</option>
-          </select>
-        </div>
-        <div class="form-group"><label class="form-label">Formato</label>
-          <select class="form-select" id="rep-formato">
-            <option value="p">A4 Vertical</option>
-            <option value="l">A4 Horizontal</option>
-          </select>
-        </div>
+        <div class="form-group"><label class="form-label">Contenido</label><select class="form-select" id="rep-contenido"><option>Pulmones + Producción + Balance</option><option>Solo producción</option><option>Resumen ejecutivo</option></select></div>
+        <div class="form-group"><label class="form-label">Firma</label><select class="form-select" id="rep-firma"><option value="negro">LFDA · Fondo negro</option><option value="blanco">LFDA · Fondo blanco</option></select></div>
+        <div class="form-group"><label class="form-label">Formato</label><select class="form-select" id="rep-formato"><option value="p">A4 Vertical</option><option value="l">A4 Horizontal</option></select></div>
       </div>
     </div>
-
-    <div id="rep-preview" class="card" style="display:none">
-      <div class="card-title"><i class="ri-eye-line"></i> Vista previa de datos</div>
-      <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Turno</th><th>Responsable</th><th>Cortados</th><th>DVH Auto</th><th>DVH Manual</th><th>Rechazos</th><th>% Rec.</th></tr></thead><tbody id="rep-prev-body"></tbody></table></div>
-      <div style="margin-top:10px;font-size:12px;color:var(--text3)" id="rep-prev-total"></div>
-    </div>
-
     <div class="section-actions">
-      <button class="btn btn-outline" onclick="vistaPrevia()"><i class="ri-eye-line"></i> Vista previa</button>
       <button class="btn btn-primary" onclick="generarPDF()"><i class="ri-download-2-line"></i> Descargar PDF</button>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       CONFIGURACIÓN (Admin)
-  ══════════════════════════════════ -->
-  <div class="view admin-only" id="view-admin">
+  <!-- ADMIN -->
+  <div class="view" id="view-admin">
     <div class="page-header"><div class="page-title">Configuración</div><div class="page-sub">Panel de administrador · Diego Pavan</div></div>
     <div class="admin-grid">
       <div class="card">
@@ -459,7 +445,7 @@ tr:hover td{background:var(--bg3);color:var(--text)}
           <div class="form-group"><label class="form-label">Empresa</label><input type="text" class="form-input" id="cfg-empresa" value="La Fábrica de Aberturas"></div>
           <div class="form-group"><label class="form-label">Sector</label><input type="text" class="form-input" id="cfg-sector" value="Línea de Vidrios"></div>
           <div class="form-group"><label class="form-label">Ubicación</label><input type="text" class="form-input" id="cfg-ubicacion" value="Cañuelas, Buenos Aires"></div>
-          <div class="form-group"><label class="form-label">Responsable PDF</label><input type="text" class="form-input" id="cfg-resp" value="Diego Pavan · Administrador"></div>
+          <div class="form-group"><label class="form-label">Responsable PDF</label><input type="text" class="form-input" id="cfg-resp" value="Diego Pavan · Jefe de Producción"></div>
           <button class="btn btn-primary" style="align-self:start" onclick="guardarConfig()"><i class="ri-save-line"></i> Guardar</button>
         </div>
       </div>
@@ -482,7 +468,7 @@ tr:hover td{background:var(--bg3);color:var(--text)}
       </div>
       <div class="card">
         <div class="card-title"><i class="ri-database-2-line"></i> Datos y backup</div>
-        <div class="info-box"><i class="ri-information-line"></i>Los datos se guardan en este navegador (localStorage). Exportá regularmente para respaldo.</div>
+        <div class="info-box"><i class="ri-information-line"></i>Los datos se guardan en este navegador. Exportá regularmente como respaldo.</div>
         <div style="display:flex;flex-direction:column;gap:8px">
           <button class="btn btn-outline" onclick="exportarDatos()"><i class="ri-download-2-line"></i> Exportar todos los datos (JSON)</button>
           <button class="btn btn-outline" onclick="document.getElementById('importFile').click()"><i class="ri-upload-2-line"></i> Importar datos (JSON)</button>
@@ -494,17 +480,12 @@ tr:hover td{background:var(--bg3);color:var(--text)}
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       USUARIOS (Admin)
-  ══════════════════════════════════ -->
-  <div class="view admin-only" id="view-usuarios">
-    <div class="page-header"><div class="page-title">Usuarios</div><div class="page-sub">Control de acceso por rol</div></div>
+  <!-- USUARIOS -->
+  <div class="view" id="view-usuarios">
+    <div class="page-header"><div class="page-title">Usuarios</div><div class="page-sub">Control de acceso por rol · PINs de acceso</div></div>
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <div class="card-title" style="margin-bottom:0"><i class="ri-team-line"></i> Miembros</div>
-        <button class="btn btn-primary" onclick="openModal('modal-nuevo-user')"><i class="ri-user-add-line"></i> Agregar usuario</button>
-      </div>
-      <div id="user-list"></div>
+      <div class="card-title"><i class="ri-team-line"></i> Usuarios del sistema</div>
+      <div id="user-mgmt-list"></div>
     </div>
     <div class="card">
       <div class="card-title"><i class="ri-shield-keyhole-line"></i> Roles y permisos</div>
@@ -512,8 +493,8 @@ tr:hover td{background:var(--bg3);color:var(--text)}
         <thead><tr><th>Rol</th><th>Dashboard</th><th>Cargar turno</th><th>Histórico</th><th>Generar PDF</th><th>Admin</th></tr></thead>
         <tbody>
           <tr><td><span class="pill pill-danger">Admin</span></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+          <tr><td><span class="pill pill-purple">Gerente</span></td><td>✓</td><td>—</td><td>✓</td><td>✓</td><td>—</td></tr>
           <tr><td><span class="pill pill-info">Líder</span></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>—</td></tr>
-          <tr><td><span class="pill pill-neutral">Operario</span></td><td>✓</td><td>—</td><td>Solo lectura</td><td>—</td><td>—</td></tr>
         </tbody>
       </table>
     </div>
@@ -521,101 +502,192 @@ tr:hover td{background:var(--bg3);color:var(--text)}
 
 </main>
 </div>
+</div>
 
-<!-- ══ MODAL Nuevo usuario ══ -->
-<div class="modal-bg" id="modal-nuevo-user">
+<div class="modal-bg" id="modal-pin-change">
   <div class="modal">
-    <div class="modal-title">Nuevo usuario</div>
-    <div class="modal-sub">Nombre, rol y PIN de acceso al sistema</div>
+    <div class="modal-title">Cambiar PIN</div>
+    <div class="modal-sub" id="modal-pin-sub"></div>
     <div class="form-grid" style="gap:12px">
-      <div class="form-group"><label class="form-label">Nombre completo</label><input type="text" class="form-input" id="nu-nombre" placeholder="Apellido, Nombre"></div>
-      <div class="form-group"><label class="form-label">Rol</label>
-        <select class="form-select" id="nu-rol">
-          <option value="lider">Líder de sector</option>
-          <option value="operario">Operario</option>
-        </select>
-      </div>
-      <div class="form-group"><label class="form-label">PIN (4 dígitos)</label><input type="password" class="form-input" id="nu-pin" placeholder="****" maxlength="4" pattern="[0-9]{4}"></div>
+      <div class="form-group"><label class="form-label">Nuevo PIN (4 dígitos)</label><input type="password" class="form-input" id="new-pin" placeholder="****" maxlength="4" pattern="[0-9]{4}"></div>
+      <div class="form-group"><label class="form-label">Confirmar PIN</label><input type="password" class="form-input" id="new-pin2" placeholder="****" maxlength="4" pattern="[0-9]{4}"></div>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-outline" onclick="closeModal('modal-nuevo-user')">Cancelar</button>
-      <button class="btn btn-primary" onclick="agregarUsuario()"><i class="ri-user-add-line"></i> Agregar</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-pin-change')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarNuevoPin()"><i class="ri-save-line"></i> Guardar PIN</button>
     </div>
   </div>
 </div>
 
 <div id="toast"></div>
 
-<!-- ══════════════════════════════════════════════════
-     JAVASCRIPT
-══════════════════════════════════════════════════ -->
 <script>
-// ── ESTADO GLOBAL ──
+// ══════════════════════════════════
+// USUARIOS DEL SISTEMA
+// ══════════════════════════════════
+const USUARIOS_DEFAULT = [
+  { id:'dpavan',   nombre:'Diego Pavan',    cargo:'Jefe de Producción', rol:'Admin',   avatar:'DP', pin:'1234' },
+  { id:'pbonacci', nombre:'Pablo Bonacci',  cargo:'Gerente',            rol:'Gerente', avatar:'PB', pin:'1111' },
+  { id:'dacevedo', nombre:'Diego Acevedo',  cargo:'Líder',              rol:'Lider',   avatar:'DA', pin:'2222' },
+  { id:'acordoba', nombre:'Angel Córdoba',  cargo:'Líder',              rol:'Lider',   avatar:'AC', pin:'3333' },
+];
+
+// ── ESTADO ──
 let darkMode = true;
 let reportType = 'dia';
-let isAdmin = true;
+let currentUser = null;
+let pinBuffer = '';
+let selectedUserId = null;
+let changingPinFor = null;
 
-// ── CONFIG POR DEFECTO ──
 const CONFIG_DEFAULT = {
-  empresa: 'La Fábrica de Aberturas',
-  sector: 'Línea de Vidrios',
-  ubicacion: 'Cañuelas, Buenos Aires',
-  resp: 'Diego Pavan · Administrador',
-  warnPct: 8,
-  dangerPct: 15,
-  pulmonMin: 5,
-  equipos: ['Abastecedor','Cortadora Turomas','Canteadora','DVH Automática','DVH Manual']
+  empresa:'La Fábrica de Aberturas', sector:'Línea de Vidrios',
+  ubicacion:'Cañuelas, Buenos Aires', resp:'Diego Pavan · Jefe de Producción',
+  warnPct:8, dangerPct:15, pulmonMin:5,
+  equipos:['Abastecedor','Cortadora Turomas','Canteadora','DVH Automática','DVH Manual']
 };
+
+let config = {...CONFIG_DEFAULT};
+let historico = [];
+let sistemUsuarios = [];
 
 // ── PERSISTENCIA ──
-function saveData() {
+function saveAll() {
   try {
-    localStorage.setItem('lfda_historico', JSON.stringify(historico));
-    localStorage.setItem('lfda_usuarios', JSON.stringify(usuarios));
-    localStorage.setItem('lfda_config', JSON.stringify(config));
-  } catch(e) { console.warn('localStorage no disponible'); }
+    localStorage.setItem('lfda_hist', JSON.stringify(historico));
+    localStorage.setItem('lfda_cfg', JSON.stringify(config));
+    localStorage.setItem('lfda_users', JSON.stringify(sistemUsuarios));
+  } catch(e){}
 }
 
-function loadData() {
+function loadAll() {
   try {
-    const h = localStorage.getItem('lfda_historico');
-    const u = localStorage.getItem('lfda_usuarios');
-    const c = localStorage.getItem('lfda_config');
+    const h = localStorage.getItem('lfda_hist');
+    const c = localStorage.getItem('lfda_cfg');
+    const u = localStorage.getItem('lfda_users');
     if (h) historico = JSON.parse(h);
-    if (u) usuarios = JSON.parse(u);
-    if (c) config = { ...CONFIG_DEFAULT, ...JSON.parse(c) };
-  } catch(e) { console.warn('Error cargando datos'); }
+    if (c) config = {...CONFIG_DEFAULT,...JSON.parse(c)};
+    if (u) sistemUsuarios = JSON.parse(u);
+    else sistemUsuarios = JSON.parse(JSON.stringify(USUARIOS_DEFAULT));
+  } catch(e){ sistemUsuarios = JSON.parse(JSON.stringify(USUARIOS_DEFAULT)); }
 }
 
-// ── DATOS ──
-let config = { ...CONFIG_DEFAULT };
+// ══════════════════════════════════
+// LOGIN
+// ══════════════════════════════════
+function initLogin() {
+  const list = document.getElementById('user-list-login');
+  list.innerHTML = sistemUsuarios.map(u => {
+    const cls = u.rol === 'Admin' ? 'admin' : u.rol === 'Gerente' ? 'gerente' : 'lider';
+    const rolLabel = u.rol === 'Admin' ? 'Administrador' : u.rol === 'Gerente' ? 'Gerente' : 'Líder de sector';
+    return `<div class="user-btn" id="ubtn-${u.id}" onclick="selectUser('${u.id}')">
+      <div class="user-avatar ${cls}">${u.avatar}</div>
+      <div>
+        <div class="user-info-name">${u.nombre}</div>
+        <div class="user-info-role">${u.cargo} · ${rolLabel}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-let historico = [
-  {fecha:'2026-05-19',turno:'Mañana',resp:'García, R.',p1i:80,p1f:40,p2i:15,p2f:22,p3ai:8,p3af:5,p3bi:12,p3bf:10,cortados:95,canteados:89,dvhA:48,dvhM:16,rechazos:18,balance:'OK'},
-  {fecha:'2026-05-19',turno:'Noche',resp:'Méndez, L.',p1i:40,p1f:55,p2i:22,p2f:18,p3ai:5,p3af:8,p3bi:10,p3bf:12,cortados:88,canteados:82,dvhA:40,dvhM:12,rechazos:6,balance:'OK'},
-  {fecha:'2026-05-18',turno:'Tarde',resp:'Romero, C.',p1i:55,p1f:30,p2i:18,p2f:25,p3ai:10,p3af:6,p3bi:8,p3bf:14,cortados:102,canteados:98,dvhA:55,dvhM:20,rechazos:24,balance:'WARN'},
-];
+function selectUser(id) {
+  selectedUserId = id;
+  pinBuffer = '';
+  document.querySelectorAll('.user-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('ubtn-' + id).classList.add('selected');
+  const u = sistemUsuarios.find(x => x.id === id);
+  document.getElementById('pin-label').textContent = `PIN de ${u.nombre.split(' ')[0]}`;
+  document.getElementById('pin-section').classList.add('visible');
+  document.getElementById('pin-error').textContent = '';
+  updateDots();
+}
 
-let usuarios = [
-  {nombre:'Pavan, Diego',rol:'Admin',avatar:'DP'},
-  {nombre:'García, Roberto',rol:'Líder',avatar:'GR'},
-  {nombre:'Méndez, Laura',rol:'Líder',avatar:'ML'},
-  {nombre:'Romero, Carlos',rol:'Operario',avatar:'RC'},
-];
+function pinPress(n) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += n;
+  updateDots();
+  if (pinBuffer.length === 4) setTimeout(pinEnter, 200);
+}
 
-// ── INIT ──
-window.onload = function() {
-  loadData();
-  document.getElementById('f-fecha').value = new Date().toISOString().split('T')[0];
-  aplicarConfig();
-  renderEquiposForm();
-  renderHistorico();
-  renderDashboard();
-  renderUsuarios();
-  renderEquiposConfig();
-};
+function pinDel() {
+  pinBuffer = pinBuffer.slice(0, -1);
+  updateDots();
+  document.getElementById('pin-error').textContent = '';
+}
 
-// ── NAVEGACIÓN ──
+function updateDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('dot-' + i).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function pinEnter() {
+  if (!selectedUserId) { document.getElementById('pin-error').textContent = 'Seleccioná un usuario primero'; return; }
+  if (pinBuffer.length < 4) { document.getElementById('pin-error').textContent = 'Ingresá 4 dígitos'; return; }
+  const u = sistemUsuarios.find(x => x.id === selectedUserId);
+  if (pinBuffer === u.pin) {
+    currentUser = u;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    aplicarRol();
+    renderDashboard();
+    renderEquiposForm();
+    renderUsuariosMgmt();
+    renderEquiposConfig();
+    aplicarConfig();
+  } else {
+    pinBuffer = '';
+    updateDots();
+    document.getElementById('pin-error').textContent = 'PIN incorrecto. Intentá de nuevo.';
+    document.getElementById('login-screen').style.backgroundColor = '';
+    document.getElementById('login-screen').animate([
+      {transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'translateX(0)'}
+    ],{duration:300});
+  }
+}
+
+function aplicarRol() {
+  const u = currentUser;
+  const rolLabel = u.rol === 'Admin' ? 'Admin' : u.rol === 'Gerente' ? 'Gerente' : 'Líder';
+  document.getElementById('badge-user').innerHTML = `<i class="ri-user-line" style="margin-right:3px;font-size:11px"></i>${u.nombre.split(' ')[0]} · ${rolLabel}`;
+  document.getElementById('f-resp').value = u.nombre;
+  document.getElementById('carga-sub').textContent = `Sesión: ${u.nombre} · ${u.cargo}`;
+
+  // Permisos por rol
+  const esAdmin = u.rol === 'Admin';
+  const esLider = u.rol === 'Lider';
+  const esGerente = u.rol === 'Gerente';
+
+  // Cargar turno: solo Admin y Lider
+  document.getElementById('nav-carga').classList.toggle('hidden', esGerente);
+  // Admin panel
+  document.getElementById('nav-section-admin').classList.toggle('hidden', !esAdmin);
+  document.getElementById('nav-admin').classList.toggle('hidden', !esAdmin);
+  document.getElementById('nav-usuarios').classList.toggle('hidden', !esAdmin);
+  // Columna eliminar en histórico
+  const delCol = document.getElementById('hist-del-col');
+  if (delCol) delCol.style.display = esAdmin ? '' : 'none';
+}
+
+function cerrarSesion() {
+  if (!confirm('¿Cerrar sesión?')) return;
+  currentUser = null; selectedUserId = null; pinBuffer = '';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.querySelectorAll('.user-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('pin-section').classList.remove('visible');
+  document.getElementById('pin-error').textContent = '';
+  updateDots();
+  // reset nav
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-dashboard').classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('nav-dashboard').classList.add('active');
+}
+
+// ══════════════════════════════════
+// NAV & TEMA
+// ══════════════════════════════════
 function showView(id, el) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -625,26 +697,21 @@ function showView(id, el) {
   if (id === 'historico') renderHistorico();
 }
 
-function irAReportes() {
-  showView('reportes', document.querySelector('.nav-item:nth-child(6)'));
-}
-
-// ── TEMA ──
 function toggleTheme() {
   darkMode = !darkMode;
   document.body.classList.toggle('light', !darkMode);
   document.getElementById('themeIcon').className = darkMode ? 'ri-moon-line' : 'ri-sun-line';
 }
 
-// ── DASHBOARD ──
+// ══════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════
 function renderDashboard() {
   if (!historico.length) {
-    document.getElementById('dash-sub').textContent = 'Sin registros aún';
-    document.getElementById('d-procesados').textContent = '—';
-    document.getElementById('d-dvh').textContent = '—';
-    document.getElementById('d-rechazos').textContent = '—';
-    document.getElementById('d-balance').textContent = '—';
-    document.getElementById('dash-hist').innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:20px">Sin registros. Cargá el primer turno.</td></tr>';
+    document.getElementById('dash-sub').textContent = 'Sin registros aún — cargá el primer turno';
+    ['d-procesados','d-dvh','d-rechazos','d-balance'].forEach(id => document.getElementById(id).textContent = '—');
+    document.getElementById('dash-hist').innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:20px">Sin registros</td></tr>';
+    document.getElementById('balance-rows').innerHTML = '';
     return;
   }
   const r = historico[0];
@@ -655,59 +722,39 @@ function renderDashboard() {
   document.getElementById('d-dvh-meta').textContent = `Auto: ${r.dvhA} · Manual: ${r.dvhM}`;
   document.getElementById('d-rechazos').textContent = r.rechazos;
   document.getElementById('d-rech-meta').textContent = `${pct}% de rechazo`;
-  document.getElementById('d-balance').textContent = r.balance === 'OK' ? '✓' : '⚠';
+  const balEl = document.getElementById('d-balance');
+  balEl.textContent = r.balance === 'OK' ? '✓' : '⚠';
+  balEl.className = 'stat-value ' + (r.balance === 'OK' ? 'success' : 'warn');
   document.getElementById('d-bal-meta').textContent = r.balance === 'OK' ? 'Todos los tramos OK' : 'Revisar balance';
-
-  // Flujo
-  document.getElementById('fl-abast').textContent = `${r.p1i} u.`;
-  document.getElementById('fl-p1').textContent = `${r.p1f} u.`;
-  document.getElementById('fl-cort').textContent = `${r.cortados} u.`;
-  document.getElementById('fl-p2').textContent = `${r.p2f} u.`;
-  document.getElementById('fl-cant').textContent = `${r.canteados} u.`;
-  document.getElementById('fl-dvha').textContent = `${r.dvhA} u.`;
-  document.getElementById('fl-dvhm').textContent = `${r.dvhM} u.`;
-
-  // Balance rows
-  const balRows = [
-    { label: 'Abast. → P1 → Cortadora', ok: r.balance === 'OK' },
-    { label: 'Cortadora → P2 → Canteadora', ok: r.balance === 'OK' },
-    { label: 'Canteada → P3 → DVH', ok: r.balance === 'OK' },
-  ];
-  document.getElementById('balance-rows').innerHTML = balRows.map(b =>
-    `<div class="balance-row"><span class="balance-label">${b.label}</span><span class="${b.ok ? 'balance-ok' : 'balance-warn'}">${b.ok ? '✓ OK' : '⚠ Revisar'}</span></div>`
-  ).join('');
-
-  // Últimos registros
-  const tc = { Mañana: 'tag-manana', Tarde: 'tag-tarde', Noche: 'tag-noche' };
-  document.getElementById('dash-hist').innerHTML = historico.slice(0, 5).map(r => {
-    const p = r.cortados > 0 ? Math.round(r.rechazos / r.cortados * 100) : 0;
-    const pc = p > config.dangerPct ? 'pill-danger' : p > config.warnPct ? 'pill-warn' : 'pill-success';
-    return `<tr>
-      <td>${r.fecha.split('-').reverse().join('/')}</td>
-      <td><span class="tag-turno ${tc[r.turno] || ''}">${r.turno}</span></td>
-      <td>${r.resp}</td><td>${r.cortados}</td><td>${r.canteados}</td><td>${r.dvhA}</td><td>${r.dvhM}</td>
-      <td><span class="pill ${pc}">${r.rechazos} (${p}%)</span></td>
-      <td><span class="pill ${r.balance === 'OK' ? 'pill-success' : 'pill-warn'}">${r.balance === 'OK' ? '✓ OK' : '⚠ Rev.'}</span></td>
-    </tr>`;
+  ['fl-abast','fl-p1','fl-cort','fl-p2','fl-cant','fl-dvha','fl-dvhm'].forEach((id,i)=>{
+    const vals=[r.p1i,r.p1f,r.cortados,r.p2f,r.canteados,r.dvhA,r.dvhM];
+    document.getElementById(id).textContent=vals[i]+' u.';
+  });
+  document.getElementById('balance-rows').innerHTML = [
+    'Abast. → P1 → Cortadora','Cortadora → P2 → Canteadora','Canteada → P3 → DVH'
+  ].map(l=>`<div class="balance-row"><span class="balance-label">${l}</span><span class="${r.balance==='OK'?'balance-ok':'balance-warn'}">${r.balance==='OK'?'✓ OK':'⚠ Revisar'}</span></div>`).join('');
+  const tc={Mañana:'tag-manana',Tarde:'tag-tarde',Noche:'tag-noche'};
+  document.getElementById('dash-hist').innerHTML = historico.slice(0,5).map(r=>{
+    const p=r.cortados>0?Math.round(r.rechazos/r.cortados*100):0;
+    const pc=p>config.dangerPct?'pill-danger':p>config.warnPct?'pill-warn':'pill-success';
+    return `<tr><td>${r.fecha.split('-').reverse().join('/')}</td><td><span class="tag-turno ${tc[r.turno]||''}">${r.turno}</span></td><td>${r.resp}</td><td>${r.cortados}</td><td>${r.canteados}</td><td>${r.dvhA}</td><td>${r.dvhM}</td><td><span class="pill ${pc}">${r.rechazos} (${p}%)</span></td><td><span class="pill ${r.balance==='OK'?'pill-success':'pill-warn'}">${r.balance==='OK'?'✓ OK':'⚠ Rev.'}</span></td></tr>`;
   }).join('');
 }
 
-// ── PULMONES ──
+// ══════════════════════════════════
+// CARGA TURNO
+// ══════════════════════════════════
 function calcVar(p) {
-  const i = parseFloat(document.getElementById(p + 'i')?.value || 0);
-  const f = parseFloat(document.getElementById(p + 'f')?.value || 0);
-  const v = f - i;
-  const el = document.getElementById('var-' + p);
-  if (!el) return;
-  el.textContent = 'Δ ' + (v >= 0 ? '+' : '') + v;
-  el.style.color = v > 0 ? 'var(--warn)' : v < 0 ? 'var(--info)' : 'var(--text3)';
+  const i=parseFloat(document.getElementById(p+'i')?.value||0);
+  const f=parseFloat(document.getElementById(p+'f')?.value||0);
+  const v=f-i; const el=document.getElementById('var-'+p); if(!el)return;
+  el.textContent='Δ '+(v>=0?'+':'')+v;
+  el.style.color=v>0?'var(--warn)':v<0?'var(--info)':'var(--text3)';
 }
 
-// ── EQUIPOS FORM ──
 function renderEquiposForm() {
-  const c = document.getElementById('equipos-form');
-  if (!c) return;
-  c.innerHTML = config.equipos.map((e, i) => `
+  const c=document.getElementById('equipos-form'); if(!c)return;
+  c.innerHTML=config.equipos.map((e,i)=>`
     <div class="equipo-row">
       <div class="equipo-name">${e}</div>
       <input type="text" class="form-input" placeholder="Operador" id="eq-op-${i}">
@@ -718,401 +765,299 @@ function renderEquiposForm() {
 }
 
 function updateTotals() {
-  let tp = 0, tr = 0;
-  config.equipos.forEach((_, i) => {
-    const p = parseFloat(document.getElementById('eq-proc-' + i)?.value || 0);
-    const r = parseFloat(document.getElementById('eq-rech-' + i)?.value || 0);
-    tp += p; tr += r;
-    const pct = p > 0 ? Math.round(r / p * 100) : 0;
-    const el = document.getElementById('eq-pct-' + i);
-    if (el) { el.textContent = pct + '%'; el.style.color = pct > config.dangerPct ? 'var(--danger)' : pct > config.warnPct ? 'var(--warn)' : 'var(--text3)'; }
+  let tp=0,tr=0;
+  config.equipos.forEach((_,i)=>{
+    const p=parseFloat(document.getElementById('eq-proc-'+i)?.value||0);
+    const r=parseFloat(document.getElementById('eq-rech-'+i)?.value||0);
+    tp+=p;tr+=r;
+    const pct=p>0?Math.round(r/p*100):0;
+    const el=document.getElementById('eq-pct-'+i);
+    if(el){el.textContent=pct+'%';el.style.color=pct>config.dangerPct?'var(--danger)':pct>config.warnPct?'var(--warn)':'var(--text3)';}
   });
-  document.getElementById('tot-proc').textContent = tp;
-  document.getElementById('tot-rech').textContent = tr;
-  document.getElementById('tot-pct').textContent = (tp > 0 ? Math.round(tr / tp * 100) : 0) + '%';
+  document.getElementById('tot-proc').textContent=tp;
+  document.getElementById('tot-rech').textContent=tr;
+  document.getElementById('tot-pct').textContent=(tp>0?Math.round(tr/tp*100):0)+'%';
 }
 
-// ── GUARDAR TURNO ──
 function guardarTurno() {
-  const fecha = document.getElementById('f-fecha').value;
-  const turno = document.getElementById('f-turno').value;
-  const resp = document.getElementById('f-resp').value || 'Sin asignar';
-  if (!fecha) { toast('Seleccioná una fecha'); return; }
-  const tp = parseInt(document.getElementById('tot-proc').textContent || 0);
-  const tr = parseInt(document.getElementById('tot-rech').textContent || 0);
-  const row = {
-    fecha, turno, resp,
-    p1i: parseFloat(document.getElementById('p1i').value || 0),
-    p1f: parseFloat(document.getElementById('p1f').value || 0),
-    p2i: parseFloat(document.getElementById('p2i').value || 0),
-    p2f: parseFloat(document.getElementById('p2f').value || 0),
-    p3ai: parseFloat(document.getElementById('p3ai').value || 0),
-    p3af: parseFloat(document.getElementById('p3af').value || 0),
-    p3bi: parseFloat(document.getElementById('p3bi').value || 0),
-    p3bf: parseFloat(document.getElementById('p3bf').value || 0),
-    cortados: parseFloat(document.getElementById('eq-proc-1')?.value || 0),
-    canteados: parseFloat(document.getElementById('eq-proc-2')?.value || 0),
-    dvhA: parseFloat(document.getElementById('eq-proc-3')?.value || 0),
-    dvhM: parseFloat(document.getElementById('eq-proc-4')?.value || 0),
-    rechazos: tr,
-    balance: 'OK'
-  };
-  historico.unshift(row);
-  saveData();
-  renderHistorico();
-  limpiarForm();
-  toast('✓ Turno guardado correctamente');
-  showView('historico', document.querySelectorAll('.nav-item')[2]);
-}
-
-function limpiarForm() {
-  ['p1i','p1f','p2i','p2f','p3ai','p3af','p3bi','p3bf','f-resp'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  ['p1','p2','p3a','p3b'].forEach(p => { const el = document.getElementById('var-' + p); if (el) { el.textContent = 'Δ —'; el.style.color = 'var(--text3)'; } });
-  config.equipos.forEach((_, i) => {
-    ['eq-op-','eq-proc-','eq-rech-'].forEach(pfx => { const el = document.getElementById(pfx + i); if (el) el.value = ''; });
-    const el = document.getElementById('eq-pct-' + i);
-    if (el) { el.textContent = '0%'; el.style.color = 'var(--text3)'; }
+  const fecha=document.getElementById('f-fecha').value;
+  const turno=document.getElementById('f-turno').value;
+  const resp=document.getElementById('f-resp').value||currentUser?.nombre||'Sin asignar';
+  if(!fecha){toast('Seleccioná una fecha');return;}
+  historico.unshift({fecha,turno,resp,
+    p1i:parseFloat(document.getElementById('p1i').value||0),
+    p1f:parseFloat(document.getElementById('p1f').value||0),
+    p2i:parseFloat(document.getElementById('p2i').value||0),
+    p2f:parseFloat(document.getElementById('p2f').value||0),
+    p3ai:parseFloat(document.getElementById('p3ai').value||0),
+    p3af:parseFloat(document.getElementById('p3af').value||0),
+    p3bi:parseFloat(document.getElementById('p3bi').value||0),
+    p3bf:parseFloat(document.getElementById('p3bf').value||0),
+    cortados:parseFloat(document.getElementById('eq-proc-1')?.value||0),
+    canteados:parseFloat(document.getElementById('eq-proc-2')?.value||0),
+    dvhA:parseFloat(document.getElementById('eq-proc-3')?.value||0),
+    dvhM:parseFloat(document.getElementById('eq-proc-4')?.value||0),
+    rechazos:parseInt(document.getElementById('tot-rech').textContent||0),
+    balance:'OK'
   });
-  document.getElementById('tot-proc').textContent = '0';
-  document.getElementById('tot-rech').textContent = '0';
-  document.getElementById('tot-pct').textContent = '0%';
+  saveAll(); limpiarForm(); toast('✓ Turno guardado');
+  showView('historico',document.getElementById('nav-historico'));
 }
 
-// ── HISTÓRICO ──
+function limpiarForm(){
+  ['p1i','p1f','p2i','p2f','p3ai','p3af','p3bi','p3bf'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['p1','p2','p3a','p3b'].forEach(p=>{const el=document.getElementById('var-'+p);if(el){el.textContent='Δ —';el.style.color='var(--text3)';}});
+  config.equipos.forEach((_,i)=>{['eq-op-','eq-proc-','eq-rech-'].forEach(pfx=>{const el=document.getElementById(pfx+i);if(el)el.value='';});const el=document.getElementById('eq-pct-'+i);if(el){el.textContent='0%';el.style.color='var(--text3)';}});
+  document.getElementById('tot-proc').textContent='0';
+  document.getElementById('tot-rech').textContent='0';
+  document.getElementById('tot-pct').textContent='0%';
+}
+
+// ══════════════════════════════════
+// HISTÓRICO
+// ══════════════════════════════════
 function renderHistorico(data) {
-  const rows = data || historico;
-  const body = document.getElementById('hist-body');
-  if (!body) return;
-  const tc = { Mañana: 'tag-manana', Tarde: 'tag-tarde', Noche: 'tag-noche' };
-  if (!rows.length) {
-    body.innerHTML = '<tr><td colspan="15" style="text-align:center;color:var(--text3);padding:20px">Sin registros</td></tr>';
-    return;
-  }
-  body.innerHTML = rows.map((r, idx) => {
-    const pct = r.cortados > 0 ? Math.round(r.rechazos / r.cortados * 100) : 0;
-    const pc = pct > config.dangerPct ? 'pill-danger' : pct > config.warnPct ? 'pill-warn' : 'pill-success';
-    const realIdx = historico.indexOf(r);
+  const rows=data||historico;
+  const body=document.getElementById('hist-body'); if(!body)return;
+  const tc={Mañana:'tag-manana',Tarde:'tag-tarde',Noche:'tag-noche'};
+  const esAdmin = currentUser?.rol === 'Admin';
+  if(!rows.length){body.innerHTML='<tr><td colspan="15" style="text-align:center;color:var(--text3);padding:20px">Sin registros</td></tr>';return;}
+  body.innerHTML=rows.map(r=>{
+    const pct=r.cortados>0?Math.round(r.rechazos/r.cortados*100):0;
+    const pc=pct>config.dangerPct?'pill-danger':pct>config.warnPct?'pill-warn':'pill-success';
+    const realIdx=historico.indexOf(r);
     return `<tr>
       <td>${r.fecha.split('-').reverse().join('/')}</td>
-      <td><span class="tag-turno ${tc[r.turno] || ''}">${r.turno}</span></td>
-      <td>${r.resp}</td>
-      <td>${r.p1i}</td><td>${r.p1f}</td><td>${r.p2i}</td><td>${r.p2f}</td>
+      <td><span class="tag-turno ${tc[r.turno]||''}">${r.turno}</span></td>
+      <td>${r.resp}</td><td>${r.p1i}</td><td>${r.p1f}</td><td>${r.p2i}</td><td>${r.p2f}</td>
       <td>${r.cortados}</td><td>${r.canteados}</td><td>${r.dvhA}</td><td>${r.dvhM}</td>
-      <td><span class="pill ${pc}">${r.rechazos} (${pct}%)</span></td>
-      <td>${pct}%</td>
-      <td><span class="pill ${r.balance === 'OK' ? 'pill-success' : 'pill-warn'}">${r.balance === 'OK' ? '✓ OK' : '⚠ Rev.'}</span></td>
-      ${isAdmin ? `<td><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="eliminarRegistro(${realIdx})"><i class="ri-delete-bin-line"></i></button></td>` : '<td></td>'}
+      <td><span class="pill ${pc}">${r.rechazos} (${pct}%)</span></td><td>${pct}%</td>
+      <td><span class="pill ${r.balance==='OK'?'pill-success':'pill-warn'}">${r.balance==='OK'?'✓ OK':'⚠ Rev.'}</span></td>
+      ${esAdmin?`<td><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="eliminarRegistro(${realIdx})"><i class="ri-delete-bin-line"></i></button></td>`:'<td></td>'}
     </tr>`;
   }).join('');
 }
 
-function eliminarRegistro(i) {
-  if (confirm('¿Eliminar este registro?')) {
-    historico.splice(i, 1);
-    saveData();
-    renderHistorico();
-    toast('Registro eliminado');
-  }
+function eliminarRegistro(i){
+  if(confirm('¿Eliminar este registro?')){historico.splice(i,1);saveAll();renderHistorico();toast('Registro eliminado');}
 }
-
-function filtrarHistorico() {
-  const tipo = document.getElementById('hist-tipo').value;
-  const desde = document.getElementById('hist-desde').value;
-  const hasta = document.getElementById('hist-hasta').value;
-  let data = [...historico];
-  if (tipo !== 'all') data = data.filter(r => r.turno === tipo);
-  if (desde) data = data.filter(r => r.fecha >= desde);
-  if (hasta) data = data.filter(r => r.fecha <= hasta);
+function filtrarHistorico(){
+  const tipo=document.getElementById('hist-tipo').value;
+  const desde=document.getElementById('hist-desde').value;
+  const hasta=document.getElementById('hist-hasta').value;
+  let data=[...historico];
+  if(tipo!=='all')data=data.filter(r=>r.turno===tipo);
+  if(desde)data=data.filter(r=>r.fecha>=desde);
+  if(hasta)data=data.filter(r=>r.fecha<=hasta);
   renderHistorico(data);
 }
-
-function resetFiltros() {
-  document.getElementById('hist-tipo').value = 'all';
-  document.getElementById('hist-desde').value = '';
-  document.getElementById('hist-hasta').value = '';
+function resetFiltros(){
+  document.getElementById('hist-tipo').value='all';
+  document.getElementById('hist-desde').value='';
+  document.getElementById('hist-hasta').value='';
   renderHistorico();
 }
 
-// ── FILTRO DATOS PDF ──
-function filtrarDatosPDF() {
-  let data = [...historico];
-  if (reportType === 'dia') {
-    const f = document.getElementById('rep-dia').value;
-    const t = document.getElementById('rep-turno-dia').value;
-    if (f) data = data.filter(r => r.fecha === f);
-    if (t) data = data.filter(r => r.turno === t);
-  } else if (reportType === 'mes') {
-    const m = document.getElementById('rep-mes').value;
-    if (m) data = data.filter(r => r.fecha.startsWith(m));
-  } else if (reportType === 'rango') {
-    const desde = document.getElementById('rep-desde').value;
-    const hasta = document.getElementById('rep-hasta').value;
-    if (desde) data = data.filter(r => r.fecha >= desde);
-    if (hasta) data = data.filter(r => r.fecha <= hasta);
-  } else if (reportType === 'turno') {
-    const t = document.getElementById('rep-turno-sel').value;
-    const m = document.getElementById('rep-turno-mes').value;
-    if (t) data = data.filter(r => r.turno === t);
-    if (m) data = data.filter(r => r.fecha.startsWith(m));
-  }
+// ══════════════════════════════════
+// PDF
+// ══════════════════════════════════
+function selectReportType(t){
+  reportType=t;
+  ['dia','mes','rango','turno'].forEach(tp=>{
+    document.getElementById('rt-'+tp).classList.toggle('selected',tp===t);
+    document.getElementById('rep-form-'+tp).style.display=tp===t?'block':'none';
+  });
+}
+
+function filtrarDatosPDF(){
+  let data=[...historico];
+  if(reportType==='dia'){const f=document.getElementById('rep-dia').value;const t=document.getElementById('rep-turno-dia').value;if(f)data=data.filter(r=>r.fecha===f);if(t)data=data.filter(r=>r.turno===t);}
+  else if(reportType==='mes'){const m=document.getElementById('rep-mes').value;if(m)data=data.filter(r=>r.fecha.startsWith(m));}
+  else if(reportType==='rango'){const d=document.getElementById('rep-desde').value;const h=document.getElementById('rep-hasta').value;if(d)data=data.filter(r=>r.fecha>=d);if(h)data=data.filter(r=>r.fecha<=h);}
+  else if(reportType==='turno'){const t=document.getElementById('rep-turno-sel').value;const m=document.getElementById('rep-turno-mes').value;if(t)data=data.filter(r=>r.turno===t);if(m)data=data.filter(r=>r.fecha.startsWith(m));}
   return data;
 }
 
-// ── VISTA PREVIA ──
-function vistaPrevia() {
-  const data = filtrarDatosPDF();
-  const preview = document.getElementById('rep-preview');
-  const body = document.getElementById('rep-prev-body');
-  const total = document.getElementById('rep-prev-total');
-  const tc = { Mañana: 'tag-manana', Tarde: 'tag-tarde', Noche: 'tag-noche' };
-  if (!data.length) { toast('Sin datos para el filtro seleccionado'); return; }
-  body.innerHTML = data.map(r => {
-    const pct = r.cortados > 0 ? Math.round(r.rechazos / r.cortados * 100) : 0;
-    const pc = pct > config.dangerPct ? 'pill-danger' : pct > config.warnPct ? 'pill-warn' : 'pill-success';
-    return `<tr>
-      <td>${r.fecha.split('-').reverse().join('/')}</td>
-      <td><span class="tag-turno ${tc[r.turno] || ''}">${r.turno}</span></td>
-      <td>${r.resp}</td><td>${r.cortados}</td><td>${r.dvhA}</td><td>${r.dvhM}</td>
-      <td><span class="pill ${pc}">${r.rechazos} (${pct}%)</span></td><td>${pct}%</td>
-    </tr>`;
-  }).join('');
-  const totCort = data.reduce((a, r) => a + r.cortados, 0);
-  const totRech = data.reduce((a, r) => a + r.rechazos, 0);
-  const totPct = totCort > 0 ? Math.round(totRech / totCort * 100) : 0;
-  total.textContent = `${data.length} registro(s) · ${totCort} cortados · ${totRech} rechazos (${totPct}% total)`;
-  preview.style.display = 'block';
-}
-
-// ── SELECTOR TIPO REPORTE ──
-function selectReportType(t) {
-  reportType = t;
-  ['dia','mes','rango','turno'].forEach(tp => {
-    document.getElementById('rt-' + tp).classList.toggle('selected', tp === t);
-    document.getElementById('rep-form-' + tp).style.display = tp === t ? 'block' : 'none';
+function generarPDF(){
+  const data=filtrarDatosPDF();
+  if(!data.length){toast('Sin datos para el filtro seleccionado');return;}
+  if(typeof window.jspdf==='undefined'){toast('Cargando librería PDF, intentá en unos segundos...');return;}
+  const {jsPDF}=window.jspdf;
+  const orient=document.getElementById('rep-formato').value;
+  const fondoNegro=document.getElementById('rep-firma').value==='negro';
+  const doc=new jsPDF({orientation:orient==='l'?'landscape':'portrait',unit:'mm',format:'a4'});
+  const W=orient==='l'?297:210,H=orient==='l'?210:297;
+  const lc=fondoNegro?[255,255,255]:[17,17,17];
+  const mc=fondoNegro?[100,100,100]:[140,140,140];
+  const tc=fondoNegro?[195,195,195]:[55,55,55];
+  const br1=fondoNegro?[25,25,25]:[238,238,238];
+  const br2a=fondoNegro?[15,15,15]:[252,252,252];
+  const br2b=fondoNegro?[20,20,20]:[245,245,245];
+  const footBg=fondoNegro?[15,15,15]:[232,232,232];
+  if(fondoNegro){doc.setFillColor(10,10,10);doc.rect(0,0,W,H,'F');doc.setFillColor(20,20,20);doc.rect(0,0,W,42,'F');}
+  else{doc.setFillColor(248,248,248);doc.rect(0,0,W,H,'F');doc.setFillColor(255,255,255);doc.rect(0,0,W,42,'F');doc.setDrawColor(220,220,220);doc.line(0,42,W,42);}
+  doc.setFont('helvetica','bold');doc.setFontSize(16);doc.setTextColor(...lc);
+  doc.text('LA FÁBRICA DE ABERTURAS',14,16);
+  doc.setDrawColor(...lc);doc.setLineWidth(0.7);doc.line(128,6,136,6);doc.line(136,6,136,14);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(...mc);
+  doc.text(`${config.sector} · CONTROL DE PRODUCCIÓN`,14,26);
+  const hoy=new Date().toLocaleDateString('es-AR');
+  doc.text(`Generado: ${hoy} · ${config.resp}`,W-14,18,{align:'right'});
+  doc.text('lafabricadeaberturas.com',W-14,26,{align:'right'});
+  doc.setDrawColor(...br1);doc.line(14,44,W-14,44);
+  doc.setFontSize(13);doc.setFont('helvetica','bold');doc.setTextColor(...lc);
+  const tl={dia:'DIARIO',mes:'MENSUAL',rango:'RANGO DE FECHAS',turno:'POR TURNO'};
+  doc.text(`REPORTE DE PRODUCCIÓN · ${tl[reportType]||''}`,14,56);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(...mc);
+  doc.text(`${data.length} registro(s)`,14,64);
+  const cols=['Fecha','Turno','Responsable','Cortados','Canteados','DVH Auto','DVH Man.','Rechazos','% Rec.','Balance'];
+  const colW=orient==='l'?[22,20,44,18,20,18,18,20,14,16]:[22,20,36,16,18,16,16,18,12,14];
+  let y=74;
+  doc.setFillColor(...br1);doc.rect(14,y-5,W-28,10,'F');
+  doc.setFontSize(7);doc.setTextColor(...mc);
+  let cx=14;cols.forEach((c,i)=>{doc.text(c,cx+1,y+1);cx+=colW[i];});y+=10;
+  data.forEach((r,ri)=>{
+    doc.setFillColor(...(ri%2===0?br2a:br2b));doc.rect(14,y-5,W-28,9,'F');
+    doc.setTextColor(...tc);cx=14;
+    const pct=r.cortados>0?Math.round(r.rechazos/r.cortados*100):0;
+    [r.fecha.split('-').reverse().join('/'),r.turno,r.resp,''+r.cortados,''+r.canteados,''+r.dvhA,''+r.dvhM,''+r.rechazos,pct+'%',r.balance==='OK'?'✓ OK':'⚠ Rev.'].forEach((v,i)=>{doc.text(v,cx+1,y+1);cx+=colW[i];});
+    y+=9;if(y>H-30){doc.addPage();y=20;}
   });
-  document.getElementById('rep-preview').style.display = 'none';
-}
-
-// ── PDF ──
-function generarPDF() {
-  const data = filtrarDatosPDF();
-  if (!data.length) { toast('Sin datos para el filtro seleccionado'); return; }
-
-  if (typeof window.jspdf === 'undefined') { toast('✓ PDF listo (cargando librería...)'); return; }
-  const { jsPDF } = window.jspdf;
-  const orient = document.getElementById('rep-formato').value;
-  const fondoNegro = document.getElementById('rep-firma').value === 'negro';
-  const doc = new jsPDF({ orientation: orient === 'l' ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' });
-  const W = orient === 'l' ? 297 : 210;
-  const H = orient === 'l' ? 210 : 297;
-
-  // Fondo
-  if (fondoNegro) {
-    doc.setFillColor(10, 10, 10); doc.rect(0, 0, W, H, 'F');
-    doc.setFillColor(20, 20, 20); doc.rect(0, 0, W, 42, 'F');
-  } else {
-    doc.setFillColor(245, 245, 245); doc.rect(0, 0, W, H, 'F');
-    doc.setFillColor(255, 255, 255); doc.rect(0, 0, W, 42, 'F');
-    doc.setDrawColor(220, 220, 220); doc.line(0, 42, W, 42);
-  }
-
-  // Logo LFDA texto
-  const logoColor = fondoNegro ? [255, 255, 255] : [17, 17, 17];
-  const mutedColor = fondoNegro ? [100, 100, 100] : [140, 140, 140];
-  const textColor = fondoNegro ? [200, 200, 200] : [50, 50, 50];
-  const textColor2 = fondoNegro ? [150, 150, 150] : [100, 100, 100];
-  const bgRow1 = fondoNegro ? [25, 25, 25] : [240, 240, 240];
-  const bgRow2a = fondoNegro ? [15, 15, 15] : [252, 252, 252];
-  const bgRow2b = fondoNegro ? [20, 20, 20] : [246, 246, 246];
-  const footerBg = fondoNegro ? [15, 15, 15] : [235, 235, 235];
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16); doc.setTextColor(...logoColor);
-  doc.text('LA FÁBRICA DE ABERTURAS', 14, 16);
-  // Bracket del logo
-  doc.setDrawColor(...logoColor); doc.setLineWidth(0.7);
-  doc.line(128, 6, 136, 6); doc.line(136, 6, 136, 14);
-
-  doc.setFontSize(8); doc.setFont('helvetica', 'normal');
-  doc.setTextColor(...mutedColor);
-  doc.text(`${config.sector} · CONTROL DE PRODUCCIÓN`, 14, 26);
-  const hoy = new Date().toLocaleDateString('es-AR');
-  doc.text(`Generado: ${hoy} · ${config.resp}`, W - 14, 18, { align: 'right' });
-  doc.text('lafabricadeaberturas.com', W - 14, 26, { align: 'right' });
-
-  doc.setDrawColor(...bgRow1); doc.line(14, 44, W - 14, 44);
-
-  doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(...logoColor);
-  const tipoLabel = { dia: 'DIARIO', mes: 'MENSUAL', rango: 'RANGO DE FECHAS', turno: 'POR TURNO' };
-  doc.text(`REPORTE DE PRODUCCIÓN · ${tipoLabel[reportType] || ''}`, 14, 56);
-  doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(...mutedColor);
-  doc.text(`${data.length} registro(s) incluidos`, 14, 64);
-
-  // Tabla
-  const cols = ['Fecha', 'Turno', 'Responsable', 'Cortados', 'Canteados', 'DVH Auto', 'DVH Manual', 'Rechazos', '% Rec.', 'Balance'];
-  const colW = orient === 'l'
-    ? [22, 20, 44, 18, 20, 18, 20, 22, 16, 18]
-    : [22, 20, 36, 16, 18, 16, 18, 20, 14, 16];
-
-  let y = 74;
-  doc.setFillColor(...bgRow1); doc.rect(14, y - 5, W - 28, 10, 'F');
-  doc.setFontSize(7); doc.setTextColor(...textColor2);
-  let cx = 14;
-  cols.forEach((c, i) => { doc.text(c, cx + 1, y + 1); cx += colW[i]; });
-  y += 10;
-
-  data.forEach((r, ri) => {
-    doc.setFillColor(...(ri % 2 === 0 ? bgRow2a : bgRow2b));
-    doc.rect(14, y - 5, W - 28, 9, 'F');
-    doc.setTextColor(...textColor); cx = 14;
-    const pct = r.cortados > 0 ? Math.round(r.rechazos / r.cortados * 100) : 0;
-    const vals = [
-      r.fecha.split('-').reverse().join('/'), r.turno, r.resp,
-      '' + r.cortados, '' + r.canteados, '' + r.dvhA, '' + r.dvhM,
-      '' + r.rechazos, pct + '%', r.balance === 'OK' ? '✓ OK' : '⚠ Rev.'
-    ];
-    vals.forEach((v, i) => { doc.text(v, cx + 1, y + 1); cx += colW[i]; });
-    y += 9;
-    if (y > H - 30) { doc.addPage(); y = 20; }
-  });
-
-  // Totales
-  y += 4;
-  const totCort = data.reduce((a, r) => a + r.cortados, 0);
-  const totDvhA = data.reduce((a, r) => a + r.dvhA, 0);
-  const totDvhM = data.reduce((a, r) => a + r.dvhM, 0);
-  const totRech = data.reduce((a, r) => a + r.rechazos, 0);
-  const totPct = totCort > 0 ? Math.round(totRech / totCort * 100) : 0;
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...logoColor);
-  doc.text(`TOTALES: ${totCort} cortados · ${totDvhA} DVH Auto · ${totDvhM} DVH Manual · ${totRech} rechazos (${totPct}%)`, 14, y);
-
-  // Footer
-  doc.setFillColor(...footerBg); doc.rect(0, H - 14, W, 14, 'F');
-  doc.setFontSize(6.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...mutedColor);
-  doc.text(`${config.empresa} · ${config.sector} · ${config.ubicacion}`, 14, H - 5);
-  doc.text('Página 1', W - 14, H - 5, { align: 'right' });
-
-  doc.save(`Reporte_LFDA_${reportType}_${hoy.replace(/\//g, '-')}.pdf`);
+  y+=4;
+  const totC=data.reduce((a,r)=>a+r.cortados,0);
+  const totR=data.reduce((a,r)=>a+r.rechazos,0);
+  const totP=totC>0?Math.round(totR/totC*100):0;
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...lc);
+  doc.text(`TOTALES: ${totC} cortados · ${totR} rechazos (${totP}%)`,14,y);
+  doc.setFillColor(...footBg);doc.rect(0,H-14,W,14,'F');
+  doc.setFontSize(6.5);doc.setFont('helvetica','normal');doc.setTextColor(...mc);
+  doc.text(`${config.empresa} · ${config.sector} · ${config.ubicacion}`,14,H-5);
+  doc.text('Página 1',W-14,H-5,{align:'right'});
+  doc.save(`Reporte_LFDA_${reportType}_${hoy.replace(/\//g,'-')}.pdf`);
   toast('✓ PDF descargado correctamente');
 }
 
-// ── USUARIOS ──
-function renderUsuarios() {
-  const c = document.getElementById('user-list'); if (!c) return;
-  const rc = { Admin: 'pill-danger', Líder: 'pill-info', Operario: 'pill-neutral' };
-  c.innerHTML = usuarios.map((u, i) => `
+// ══════════════════════════════════
+// USUARIOS (gestión admin)
+// ══════════════════════════════════
+function renderUsuariosMgmt(){
+  const c=document.getElementById('user-mgmt-list'); if(!c)return;
+  const rolPill={Admin:'pill-danger',Gerente:'pill-purple',Lider:'pill-info'};
+  const rolLabel={Admin:'Administrador',Gerente:'Gerente',Lider:'Líder'};
+  c.innerHTML=sistemUsuarios.map((u,i)=>`
     <div class="user-row">
-      <div class="avatar ${u.rol === 'Admin' ? 'admin-av' : ''}">${u.avatar}</div>
-      <div style="flex:1"><div style="font-size:13px;font-weight:500">${u.nombre}</div><div style="font-size:11px;color:var(--text3)">${u.rol === 'Admin' ? 'Administrador' : u.rol}</div></div>
-      <span class="pill ${rc[u.rol] || 'pill-neutral'}">${u.rol}</span>
-      ${u.rol !== 'Admin' ? `<button class="btn btn-danger" style="padding:5px 9px;font-size:12px" onclick="eliminarUsuario(${i})"><i class="ri-delete-bin-line"></i></button>` : ''}
+      <div class="avatar ${u.rol==='Admin'?'admin-av':''}" style="${u.rol==='Gerente'?'background:#8b5cf620;color:#a78bfa;border:1px solid #8b5cf640':u.rol==='Lider'?'background:#3b82f620;color:var(--info);border:1px solid #3b82f640':''}">${u.avatar}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${u.nombre}</div>
+        <div style="font-size:11px;color:var(--text3)">${u.cargo}</div>
+      </div>
+      <span class="pill ${rolPill[u.rol]||'pill-neutral'}" style="margin-right:8px">${rolLabel[u.rol]||u.rol}</span>
+      <button class="btn btn-outline" style="padding:5px 10px;font-size:12px" onclick="abrirCambioPin(${i})"><i class="ri-key-line"></i> PIN</button>
     </div>`).join('');
 }
 
-function eliminarUsuario(i) {
-  if (confirm('¿Eliminar a ' + usuarios[i].nombre + '?')) {
-    usuarios.splice(i, 1); saveData(); renderUsuarios(); toast('Usuario eliminado');
-  }
+function abrirCambioPin(i){
+  changingPinFor=i;
+  document.getElementById('modal-pin-sub').textContent=`Cambiar PIN de ${sistemUsuarios[i].nombre}`;
+  document.getElementById('new-pin').value='';
+  document.getElementById('new-pin2').value='';
+  openModal('modal-pin-change');
 }
 
-function agregarUsuario() {
-  const nombre = document.getElementById('nu-nombre').value.trim();
-  const rol = document.getElementById('nu-rol');
-  if (!nombre) { toast('Ingresá un nombre'); return; }
-  const rolText = rol.options[rol.selectedIndex].text;
-  const av = nombre.split(',').map(p => p.trim()[0]).join('').toUpperCase().slice(0, 2);
-  usuarios.push({ nombre, rol: rolText.includes('Líder') ? 'Líder' : 'Operario', avatar: av });
-  saveData(); renderUsuarios(); closeModal('modal-nuevo-user');
-  document.getElementById('nu-nombre').value = '';
-  toast('✓ Usuario agregado');
+function guardarNuevoPin(){
+  const p1=document.getElementById('new-pin').value;
+  const p2=document.getElementById('new-pin2').value;
+  if(!/^\d{4}$/.test(p1)){toast('El PIN debe tener exactamente 4 dígitos numéricos');return;}
+  if(p1!==p2){toast('Los PINs no coinciden');return;}
+  sistemUsuarios[changingPinFor].pin=p1;
+  saveAll(); closeModal('modal-pin-change');
+  toast(`✓ PIN de ${sistemUsuarios[changingPinFor].nombre} actualizado`);
 }
 
-// ── CONFIG ──
-function aplicarConfig() {
-  const c = document.getElementById('cfg-empresa'); if (c) c.value = config.empresa;
-  const s = document.getElementById('cfg-sector'); if (s) s.value = config.sector;
-  const u = document.getElementById('cfg-ubicacion'); if (u) u.value = config.ubicacion;
-  const r = document.getElementById('cfg-resp'); if (r) r.value = config.resp;
-  const w = document.getElementById('cfg-warn'); if (w) w.value = config.warnPct;
-  const d = document.getElementById('cfg-danger'); if (d) d.value = config.dangerPct;
-  const p = document.getElementById('cfg-pulmon-min'); if (p) p.value = config.pulmonMin;
+// ══════════════════════════════════
+// CONFIG
+// ══════════════════════════════════
+function aplicarConfig(){
+  ['empresa','sector','ubicacion','resp'].forEach(k=>{const el=document.getElementById('cfg-'+k);if(el)el.value=config[k]||'';});
+  const w=document.getElementById('cfg-warn');if(w)w.value=config.warnPct;
+  const d=document.getElementById('cfg-danger');if(d)d.value=config.dangerPct;
+  const p=document.getElementById('cfg-pulmon-min');if(p)p.value=config.pulmonMin;
 }
-
-function guardarConfig() {
-  config.empresa = document.getElementById('cfg-empresa').value;
-  config.sector = document.getElementById('cfg-sector').value;
-  config.ubicacion = document.getElementById('cfg-ubicacion').value;
-  config.resp = document.getElementById('cfg-resp').value;
-  saveData(); toast('✓ Configuración guardada');
+function guardarConfig(){
+  ['empresa','sector','ubicacion','resp'].forEach(k=>{const el=document.getElementById('cfg-'+k);if(el)config[k]=el.value;});
+  saveAll();toast('✓ Configuración guardada');
 }
-
-function guardarUmbrales() {
-  config.warnPct = parseInt(document.getElementById('cfg-warn').value);
-  config.dangerPct = parseInt(document.getElementById('cfg-danger').value);
-  config.pulmonMin = parseInt(document.getElementById('cfg-pulmon-min').value);
-  saveData(); toast('✓ Umbrales guardados');
+function guardarUmbrales(){
+  config.warnPct=parseInt(document.getElementById('cfg-warn').value);
+  config.dangerPct=parseInt(document.getElementById('cfg-danger').value);
+  config.pulmonMin=parseInt(document.getElementById('cfg-pulmon-min').value);
+  saveAll();toast('✓ Umbrales guardados');
 }
-
-function guardarEquipos() {
-  config.equipos = [];
-  document.querySelectorAll('[id^="cfg-eq-"]').forEach(el => config.equipos.push(el.value.trim()));
-  saveData(); renderEquiposForm(); toast('✓ Equipos actualizados');
+function guardarEquipos(){
+  config.equipos=[];
+  document.querySelectorAll('[id^="cfg-eq-"]').forEach(el=>config.equipos.push(el.value.trim()));
+  saveAll();renderEquiposForm();toast('✓ Equipos actualizados');
 }
-
-function renderEquiposConfig() {
-  const c = document.getElementById('equipos-config'); if (!c) return;
-  c.innerHTML = config.equipos.map((e, i) => `
+function renderEquiposConfig(){
+  const c=document.getElementById('equipos-config');if(!c)return;
+  c.innerHTML=config.equipos.map((e,i)=>`
     <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px">
       <input type="text" class="form-input" value="${e}" id="cfg-eq-${i}" style="flex:1">
-      ${i >= 5 ? `<button class="btn btn-danger" style="padding:5px 9px" onclick="removeEquipoConfig(${i})"><i class="ri-close-line"></i></button>` : ''}
+      ${i>=5?`<button class="btn btn-danger" style="padding:5px 9px" onclick="removeEquipoConfig(${i})"><i class="ri-close-line"></i></button>`:''}
     </div>`).join('');
 }
+function addEquipoConfig(){config.equipos.push('Nuevo equipo');renderEquiposConfig();}
+function removeEquipoConfig(i){config.equipos.splice(i,1);renderEquiposConfig();}
 
-function addEquipoConfig() { config.equipos.push('Nuevo equipo'); renderEquiposConfig(); }
-function removeEquipoConfig(i) { config.equipos.splice(i, 1); renderEquiposConfig(); }
-
-// ── BACKUP ──
-function exportarDatos() {
-  const blob = new Blob([JSON.stringify({ historico, usuarios, config }, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = 'LFDA_backup_' + new Date().toISOString().split('T')[0] + '.json';
-  a.click(); toast('✓ Datos exportados');
+// ══════════════════════════════════
+// BACKUP
+// ══════════════════════════════════
+function exportarDatos(){
+  const blob=new Blob([JSON.stringify({historico,config,sistemUsuarios},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='LFDA_backup_'+new Date().toISOString().split('T')[0]+'.json';a.click();
+  toast('✓ Datos exportados');
 }
-
-function importarDatos(event) {
-  const file = event.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (data.historico) historico = data.historico;
-      if (data.usuarios) usuarios = data.usuarios;
-      if (data.config) config = { ...CONFIG_DEFAULT, ...data.config };
-      saveData(); aplicarConfig(); renderEquiposForm(); renderHistorico(); renderDashboard(); renderUsuarios(); renderEquiposConfig();
+function importarDatos(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const data=JSON.parse(e.target.result);
+      if(data.historico)historico=data.historico;
+      if(data.config)config={...CONFIG_DEFAULT,...data.config};
+      if(data.sistemUsuarios)sistemUsuarios=data.sistemUsuarios;
+      saveAll();aplicarConfig();renderEquiposForm();renderHistorico();renderDashboard();renderUsuariosMgmt();renderEquiposConfig();
       toast('✓ Datos importados correctamente');
-    } catch (err) { toast('Error al importar: archivo inválido'); }
+    }catch(err){toast('Error al importar: archivo inválido');}
   };
   reader.readAsText(file);
 }
-
-function confirmarLimpiar() {
-  if (confirm('¿Borrar TODOS los registros históricos? Esta acción no se puede deshacer.')) {
-    historico = []; saveData(); renderHistorico(); renderDashboard(); toast('Base de datos limpiada');
+function confirmarLimpiar(){
+  if(confirm('¿Borrar TODOS los registros históricos? Esta acción no se puede deshacer.')){
+    historico=[];saveAll();renderHistorico();renderDashboard();toast('Base de datos limpiada');
   }
 }
 
-// ── MODAL ──
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.addEventListener('click', e => { if (e.target.classList.contains('modal-bg')) e.target.classList.remove('open'); });
+// ══════════════════════════════════
+// MODAL & TOAST
+// ══════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.addEventListener('click',e=>{if(e.target.classList.contains('modal-bg'))e.target.classList.remove('open');});
 
-// ── TOAST ──
 let toastTimer;
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3000);
 }
+
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+loadAll();
+document.getElementById('f-fecha').value=new Date().toISOString().split('T')[0];
+initLogin();
 </script>
 </html>
