@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LFDA · Control de Producción Vidrios</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0a;--bg2:#111111;--bg3:#1a1a1a;--bg4:#222222;
+  --border:#2a2a2a;--border2:#333333;
+  --text:#ffffff;--text2:#a0a0a0;--text3:#505050;
+  --logo-color:#ffffff;
+  --success:#22c55e;--warn:#f59e0b;--danger:#ef4444;--info:#3b82f6;
+  --card-r:12px;--t:0.2s ease;
+}
+body.light{
+  --bg:#f4f3ef;--bg2:#ffffff;--bg3:#ebebeb;--bg4:#e0e0e0;
+  --border:#d0d0d0;--border2:#c0c0c0;
+  --text:#111111;--text2:#555555;--text3:#999999;
+  --logo-color:#111111;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;transition:background var(--t),color var(--t)}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.logo-svg{height:28px;width:auto;display:block}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.badge-admin{background:var(--text);color:var(--bg);font-size:10px;font-weight:600;letter-spacing:1px;padding:4px 10px;border-radius:4px;text-transform:uppercase;white-space:nowrap;transition:background var(--t),color var(--t)}
+.btn-icon{width:34px;height:34px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--t);font-size:17px}
+.btn-icon:hover{background:var(--bg3);color:var(--text)}
+
+/* LAYOUT */
+.layout{display:flex;min-height:calc(100vh - 56px)}
+.sidebar{width:210px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);padding:14px 10px;display:flex;flex-direction:column;gap:3px}
+.nav-section{font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;padding:8px 8px 4px;margin-top:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;color:var(--text2);font-size:13px;border:1px solid transparent;transition:all var(--t)}
+.nav-item i{font-size:16px;width:20px;text-align:center}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--text);color:var(--bg)}
+.nav-item.active i{color:var(--bg)}
+.main{flex:1;padding:26px;overflow-y:auto;background:var(--bg)}
+
+/* VIEWS */
+.view{display:none}.view.active{display:block}
+.page-header{margin-bottom:22px}
+.page-title{font-size:26px;font-weight:600;letter-spacing:-0.5px;line-height:1}
+.page-sub{font-size:12px;color:var(--text3);margin-top:4px}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--card-r);padding:16px 18px}
+.stat-label{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.stat-value{font-size:30px;font-weight:600;line-height:1;letter-spacing:-1px}
+.stat-value.success{color:var(--success)}.stat-value.warn{color:var(--warn)}.stat-value.danger{color:var(--danger)}
+.stat-meta{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--card-r);padding:18px;margin-bottom:14px}
+.card-title{font-size:12px;font-weight:600;letter-spacing:0.3px;margin-bottom:14px;color:var(--text);display:flex;align-items:center;gap:8px}
+.card-title i{font-size:15px;color:var(--text3)}
+
+/* FORMS */
+.form-grid{display:grid;gap:12px}
+.form-grid-2{grid-template-columns:1fr 1fr}
+.form-grid-3{grid-template-columns:1fr 1fr 1fr}
+.form-grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-label{font-size:10px;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;font-weight:500}
+.form-input,.form-select{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-size:13px;font-family:inherit;transition:border-color var(--t);outline:none;width:100%}
+.form-input:focus,.form-select:focus{border-color:var(--text2)}
+.form-select option{background:var(--bg3)}
+
+/* TABLES */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);font-weight:500}
+td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3);color:var(--text)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all var(--t);font-family:inherit}
+.btn-primary{background:var(--text);color:var(--bg)}.btn-primary:hover{opacity:0.85}
+.btn-outline{background:transparent;border-color:var(--border2);color:var(--text2)}.btn-outline:hover{border-color:var(--text2);color:var(--text)}
+.btn-danger{background:#ef444415;border-color:#ef444440;color:var(--danger)}.btn-danger:hover{background:#ef444425}
+.btn-success{background:#22c55e15;border-color:#22c55e40;color:var(--success)}
+
+/* PULMONES */
+.pulmones-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.pulmon-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px}
+.pulmon-tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--info);margin-bottom:6px;font-weight:600}
+.pulmon-label{font-size:11px;color:var(--text3);margin-bottom:10px;line-height:1.4}
+.pulmon-inputs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pulmon-mini-label{font-size:10px;color:var(--text3);margin-bottom:3px}
+.variacion{font-size:20px;font-weight:600;margin-top:8px;letter-spacing:-0.5px}
+
+/* EQUIPO ROW */
+.equipo-row{display:grid;grid-template-columns:150px 1fr 95px 95px 70px;gap:8px;align-items:center;margin-bottom:8px}
+.equipo-name{font-size:12px;font-weight:500;color:var(--text)}
+
+/* BALANCE */
+.balance-row{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:8px;margin-bottom:5px;border:1px solid var(--border);background:var(--bg3)}
+.balance-label{font-size:12px;color:var(--text2)}
+.balance-ok{color:var(--success);font-weight:600;font-size:12px}
+.balance-warn{color:var(--warn);font-weight:600;font-size:12px}
+
+/* FILTROS */
+.filter-bar{display:flex;gap:8px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+.filter-bar select,.filter-bar input[type=date],.filter-bar input[type=month]{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-size:13px;font-family:inherit;outline:none}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.pill-success{background:#22c55e20;color:var(--success)}
+.pill-warn{background:#f59e0b20;color:var(--warn)}
+.pill-danger{background:#ef444420;color:var(--danger)}
+.pill-info{background:#3b82f620;color:var(--info)}
+.pill-neutral{background:var(--bg4);color:var(--text2)}
+
+/* TURNO TAGS */
+.tag-turno{font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:4px;font-weight:600}
+.tag-manana{background:#f59e0b20;color:var(--warn)}
+.tag-tarde{background:#3b82f620;color:var(--info)}
+.tag-noche{background:#8b5cf620;color:#a78bfa}
+
+/* FLUJO */
+.flujo{display:flex;align-items:flex-start;overflow-x:auto;padding-bottom:4px;margin-bottom:18px}
+.flujo-step{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:80px}
+.flujo-box{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center;font-size:11px;font-weight:500;width:80px}
+.flujo-arrow{color:var(--text3);font-size:16px;margin:0 4px;padding-top:18px}
+.flujo-pulmon{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--info);background:#3b82f615;border:1px solid #3b82f630;border-radius:4px;padding:2px 5px}
+
+/* REPORT TYPE CARDS */
+.report-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.report-type-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:all var(--t);text-align:center}
+.report-type-card:hover,.report-type-card.selected{border-color:var(--text2);background:var(--bg4)}
+.report-type-card i{font-size:26px;color:var(--text3);margin-bottom:8px;display:block}
+.report-type-card.selected i{color:var(--text)}
+.report-type-card p{font-size:13px;font-weight:500;margin-bottom:2px}
+.report-type-card span{font-size:11px;color:var(--text3)}
+
+/* ADMIN */
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.user-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.user-row:last-child{border-bottom:none}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.avatar.admin-av{background:var(--text);color:var(--bg)}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:26px;width:100%;max-width:460px}
+.modal-title{font-size:18px;font-weight:600;margin-bottom:3px}
+.modal-sub{font-size:12px;color:var(--text3);margin-bottom:18px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+
+/* MISC */
+.divider{height:1px;background:var(--border);margin:14px 0}
+.section-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.info-box{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--text3);margin-bottom:14px}
+.info-box i{color:var(--info);margin-right:6px}
+
+/* TOAST */
+#toast{position:fixed;bottom:22px;right:22px;z-index:9999;background:var(--text);color:var(--bg);padding:11px 16px;border-radius:9px;font-size:13px;font-weight:500;opacity:0;transform:translateY(8px);transition:all 0.25s;pointer-events:none;max-width:300px}
+#toast.show{opacity:1;transform:translateY(0)}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.stats-grid{grid-template-columns:1fr 1fr}.equipo-row{grid-template-columns:120px 1fr 80px 80px 60px}}
+@media(max-width:900px){.pulmones-grid{grid-template-columns:1fr 1fr}.admin-grid{grid-template-columns:1fr}.sidebar{width:190px}}
+@media(max-width:650px){.sidebar{display:none}.stats-grid{grid-template-columns:1fr 1fr}.form-grid-3{grid-template-columns:1fr 1fr}.form-grid-4{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- ══ TOPBAR ══ -->
+<div class="topbar">
+  <svg class="logo-svg" viewBox="0 0 310 72" xmlns="http://www.w3.org/2000/svg">
+    <polyline points="246,3 262,3 262,19" fill="none" stroke="var(--logo-color)" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter"/>
+    <text x="2" y="34" font-family="'Arial Black','Arial',sans-serif" font-weight="900" font-size="32" fill="var(--logo-color)" letter-spacing="0.5">LA FÁBRICA</text>
+    <text x="2" y="68" font-family="'Arial Black','Arial',sans-serif" font-weight="900" font-size="32" fill="var(--logo-color)" letter-spacing="0.5">DE ABERTURAS</text>
+  </svg>
+  <div class="topbar-right">
+    <span class="badge-admin" id="badge-user"><i class="ri-shield-user-line" style="margin-right:3px;font-size:11px"></i>Diego Pavan · Admin</span>
+    <button class="btn-icon" onclick="toggleTheme()" title="Cambiar tema"><i id="themeIcon" class="ri-moon-line"></i></button>
+    <button class="btn-icon" title="Notificaciones" onclick="toast('Sin notificaciones nuevas')"><i class="ri-notification-3-line"></i></button>
+  </div>
+</div>
+
+<div class="layout">
+
+<!-- ══ SIDEBAR ══ -->
+<nav class="sidebar" id="sidebar">
+  <div class="nav-section">Principal</div>
+  <div class="nav-item active" onclick="showView('dashboard',this)"><i class="ri-dashboard-line"></i> Dashboard</div>
+  <div class="nav-item" onclick="showView('carga',this)"><i class="ri-edit-2-line"></i> Cargar Turno</div>
+  <div class="nav-item" onclick="showView('historico',this)"><i class="ri-table-line"></i> Histórico</div>
+  <div class="nav-section">Reportes</div>
+  <div class="nav-item" onclick="showView('reportes',this)"><i class="ri-file-pdf-line"></i> Generar PDF</div>
+  <div class="nav-section">Admin</div>
+  <div class="nav-item admin-only" onclick="showView('admin',this)"><i class="ri-settings-4-line"></i> Configuración</div>
+  <div class="nav-item admin-only" onclick="showView('usuarios',this)"><i class="ri-team-line"></i> Usuarios</div>
+</nav>
+
+<main class="main">
+
+  <!-- ══════════════════════════════════
+       DASHBOARD
+  ══════════════════════════════════ -->
+  <div class="view active" id="view-dashboard">
+    <div class="page-header">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub" id="dash-sub">Cargando último registro...</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Total Procesados</div><div class="stat-value" id="d-procesados">—</div><div class="stat-meta" id="d-proc-meta"></div></div>
+      <div class="stat-card"><div class="stat-label">DVH Auto + Manual</div><div class="stat-value success" id="d-dvh">—</div><div class="stat-meta" id="d-dvh-meta"></div></div>
+      <div class="stat-card"><div class="stat-label">Rechazos</div><div class="stat-value warn" id="d-rechazos">—</div><div class="stat-meta" id="d-rech-meta"></div></div>
+      <div class="stat-card"><div class="stat-label">Balance Línea</div><div class="stat-value success" id="d-balance">—</div><div class="stat-meta" id="d-bal-meta"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ri-git-branch-line"></i> Flujo de línea</div>
+      <div class="flujo">
+        <div class="flujo-step"><div class="flujo-box" style="border-color:#3b82f640">Abastecedor</div><small id="fl-abast" style="font-size:10px;color:var(--text3)">—</small></div>
+        <div class="flujo-arrow">→</div>
+        <div class="flujo-step"><div class="flujo-pulmon">P1</div><div class="flujo-box">Pulmón 1</div><small id="fl-p1" style="font-size:10px;color:var(--info)">—</small></div>
+        <div class="flujo-arrow">→</div>
+        <div class="flujo-step"><div class="flujo-box">Cortadora</div><small id="fl-cort" style="font-size:10px;color:var(--text3)">—</small></div>
+        <div class="flujo-arrow">→</div>
+        <div class="flujo-step"><div class="flujo-pulmon">P2</div><div class="flujo-box">Pulmón 2</div><small id="fl-p2" style="font-size:10px;color:var(--info)">—</small></div>
+        <div class="flujo-arrow">→</div>
+        <div class="flujo-step"><div class="flujo-box">Canteadora</div><small id="fl-cant" style="font-size:10px;color:var(--text3)">—</small></div>
+        <div class="flujo-arrow">→</div>
+        <div class="flujo-step"><div class="flujo-pulmon">P3a</div><div class="flujo-box">DVH Auto</div><small id="fl-dvha" style="font-size:10px;color:var(--success)">—</small></div>
+        <div class="flujo-arrow" style="padding-top:18px">/</div>
+        <div class="flujo-step"><div class="flujo-pulmon">P3b</div><div class="flujo-box">DVH Manual</div><small id="fl-dvhm" style="font-size:10px;color:var(--success)">—</small></div>
+      </div>
+      <div class="divider" style="margin:10px 0"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px" id="balance-rows"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ri-history-line"></i> Últimos registros</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Fecha</th><th>Turno</th><th>Responsable</th><th>Cortados</th><th>Canteados</th><th>DVH Auto</th><th>DVH Manual</th><th>Rechazos</th><th>Balance</th></tr></thead>
+          <tbody id="dash-hist"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       CARGA TURNO
+  ══════════════════════════════════ -->
+  <div class="view" id="view-carga">
+    <div class="page-header"><div class="page-title">Cargar Turno</div><div class="page-sub">Solo líderes de sector · Los datos se guardan localmente en este dispositivo</div></div>
+
+    <div class="card">
+      <div class="card-title"><i class="ri-calendar-line"></i> Datos del turno</div>
+      <div class="form-grid form-grid-3">
+        <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input" id="f-fecha"></div>
+        <div class="form-group"><label class="form-label">Turno</label><select class="form-select" id="f-turno"><option>Mañana</option><option>Tarde</option><option>Noche</option></select></div>
+        <div class="form-group"><label class="form-label">Responsable</label><input type="text" class="form-input" id="f-resp" placeholder="Nombre del líder"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ri-stack-line"></i> Pulmones intermedios · Stock entre procesos</div>
+      <div class="pulmones-grid">
+        <div class="pulmon-card">
+          <div class="pulmon-tag">P1</div>
+          <div class="pulmon-label">Antes de Cortadora<br>Abastecedor → Turomas</div>
+          <div class="pulmon-inputs">
+            <div><div class="pulmon-mini-label">Inicio turno</div><input type="number" class="form-input" id="p1i" placeholder="0" oninput="calcVar('p1')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div>
+            <div><div class="pulmon-mini-label">Final turno</div><input type="number" class="form-input" id="p1f" placeholder="0" oninput="calcVar('p1')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div>
+          </div>
+          <div class="variacion" id="var-p1" style="color:var(--text3)">Δ —</div>
+        </div>
+        <div class="pulmon-card">
+          <div class="pulmon-tag">P2</div>
+          <div class="pulmon-label">Después de Cortadora<br>Turomas → Canteadora</div>
+          <div class="pulmon-inputs">
+            <div><div class="pulmon-mini-label">Inicio turno</div><input type="number" class="form-input" id="p2i" placeholder="0" oninput="calcVar('p2')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div>
+            <div><div class="pulmon-mini-label">Final turno</div><input type="number" class="form-input" id="p2f" placeholder="0" oninput="calcVar('p2')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div>
+          </div>
+          <div class="variacion" id="var-p2" style="color:var(--text3)">Δ —</div>
+        </div>
+        <div class="pulmon-card">
+          <div class="pulmon-tag">P3a</div>
+          <div class="pulmon-label">Canteadora<br>→ DVH Automática</div>
+          <div class="pulmon-inputs">
+            <div><div class="pulmon-mini-label">Inicio turno</div><input type="number" class="form-input" id="p3ai" placeholder="0" oninput="calcVar('p3a')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div>
+            <div><div class="pulmon-mini-label">Final turno</div><input type="number" class="form-input" id="p3af" placeholder="0" oninput="calcVar('p3a')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div>
+          </div>
+          <div class="variacion" id="var-p3a" style="color:var(--text3)">Δ —</div>
+        </div>
+        <div class="pulmon-card">
+          <div class="pulmon-tag">P3b</div>
+          <div class="pulmon-label">Canteadora<br>→ DVH Manual</div>
+          <div class="pulmon-inputs">
+            <div><div class="pulmon-mini-label">Inicio turno</div><input type="number" class="form-input" id="p3bi" placeholder="0" oninput="calcVar('p3b')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div>
+            <div><div class="pulmon-mini-label">Final turno</div><input type="number" class="form-input" id="p3bf" placeholder="0" oninput="calcVar('p3b')" min="0" style="font-size:18px;font-weight:600;padding:7px"></div>
+          </div>
+          <div class="variacion" id="var-p3b" style="color:var(--text3)">Δ —</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ri-tools-line"></i> Producción por equipo</div>
+      <div style="display:grid;grid-template-columns:150px 1fr 95px 95px 70px;gap:8px;margin-bottom:10px">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Equipo</div>
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Operador</div>
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Procesados</div>
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Rechazados</div>
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px">%</div>
+      </div>
+      <div id="equipos-form"></div>
+      <div class="divider"></div>
+      <div style="display:grid;grid-template-columns:150px 1fr 95px 95px 70px;gap:8px;align-items:center">
+        <div style="font-size:12px;font-weight:600;color:var(--text)">TOTALES</div>
+        <div></div>
+        <div style="font-size:22px;font-weight:600;letter-spacing:-1px" id="tot-proc">0</div>
+        <div style="font-size:22px;font-weight:600;letter-spacing:-1px;color:var(--warn)" id="tot-rech">0</div>
+        <div style="font-size:13px;font-weight:600" id="tot-pct">0%</div>
+      </div>
+    </div>
+
+    <div class="section-actions">
+      <button class="btn btn-outline" onclick="limpiarForm()"><i class="ri-delete-bin-line"></i> Limpiar</button>
+      <button class="btn btn-primary" onclick="guardarTurno()"><i class="ri-save-line"></i> Guardar Turno</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       HISTÓRICO
+  ══════════════════════════════════ -->
+  <div class="view" id="view-historico">
+    <div class="page-header"><div class="page-title">Histórico</div><div class="page-sub">Registro completo de producción por turno</div></div>
+    <div class="filter-bar">
+      <select id="hist-tipo" onchange="filtrarHistorico()">
+        <option value="all">Todos los turnos</option>
+        <option value="Mañana">Mañana</option>
+        <option value="Tarde">Tarde</option>
+        <option value="Noche">Noche</option>
+      </select>
+      <input type="date" id="hist-desde" onchange="filtrarHistorico()">
+      <input type="date" id="hist-hasta" onchange="filtrarHistorico()">
+      <button class="btn btn-outline" onclick="resetFiltros()"><i class="ri-refresh-line"></i> Limpiar filtros</button>
+      <button class="btn btn-primary" onclick="irAReportes()"><i class="ri-file-pdf-line"></i> Exportar PDF</button>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th><th>Turno</th><th>Responsable</th>
+              <th>P1 Ini</th><th>P1 Fin</th><th>P2 Ini</th><th>P2 Fin</th>
+              <th>Cortados</th><th>Canteados</th><th>DVH Auto</th><th>DVH Manual</th>
+              <th>Rechazos</th><th>% Rec.</th><th>Balance</th>
+              <th class="admin-only"></th>
+            </tr>
+          </thead>
+          <tbody id="hist-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       REPORTES PDF
+  ══════════════════════════════════ -->
+  <div class="view" id="view-reportes">
+    <div class="page-header"><div class="page-title">Generar Reporte PDF</div><div class="page-sub">Con firma LFDA · Fondo negro</div></div>
+
+    <div class="card">
+      <div class="card-title"><i class="ri-file-chart-line"></i> Tipo de reporte</div>
+      <div class="report-options">
+        <div class="report-type-card selected" id="rt-dia" onclick="selectReportType('dia')"><i class="ri-calendar-event-line"></i><p>Por día</p><span>Un turno o día completo</span></div>
+        <div class="report-type-card" id="rt-mes" onclick="selectReportType('mes')"><i class="ri-calendar-2-line"></i><p>Por mes</p><span>Resumen mensual consolidado</span></div>
+        <div class="report-type-card" id="rt-rango" onclick="selectReportType('rango')"><i class="ri-calendar-range-line"></i><p>Rango de fechas</p><span>Desde / hasta personalizado</span></div>
+        <div class="report-type-card" id="rt-turno" onclick="selectReportType('turno')"><i class="ri-time-line"></i><p>Por turno</p><span>Filtrado por turno específico</span></div>
+      </div>
+
+      <div id="rep-form-dia">
+        <div class="form-grid form-grid-2">
+          <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input" id="rep-dia"></div>
+          <div class="form-group"><label class="form-label">Turno (opcional)</label><select class="form-select" id="rep-turno-dia"><option value="">Todos los turnos</option><option>Mañana</option><option>Tarde</option><option>Noche</option></select></div>
+        </div>
+      </div>
+      <div id="rep-form-mes" style="display:none">
+        <div class="form-grid form-grid-2">
+          <div class="form-group"><label class="form-label">Mes</label><input type="month" class="form-input" id="rep-mes"></div>
+        </div>
+      </div>
+      <div id="rep-form-rango" style="display:none">
+        <div class="form-grid form-grid-2">
+          <div class="form-group"><label class="form-label">Desde</label><input type="date" class="form-input" id="rep-desde"></div>
+          <div class="form-group"><label class="form-label">Hasta</label><input type="date" class="form-input" id="rep-hasta"></div>
+        </div>
+      </div>
+      <div id="rep-form-turno" style="display:none">
+        <div class="form-grid form-grid-2">
+          <div class="form-group"><label class="form-label">Turno</label><select class="form-select" id="rep-turno-sel"><option>Mañana</option><option>Tarde</option><option>Noche</option></select></div>
+          <div class="form-group"><label class="form-label">Mes</label><input type="month" class="form-input" id="rep-turno-mes"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ri-palette-line"></i> Opciones del informe</div>
+      <div class="form-grid form-grid-3">
+        <div class="form-group"><label class="form-label">Contenido</label>
+          <select class="form-select" id="rep-contenido">
+            <option>Pulmones + Producción + Balance</option>
+            <option>Solo producción</option>
+            <option>Solo pulmones</option>
+            <option>Resumen ejecutivo</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Firma</label>
+          <select class="form-select" id="rep-firma">
+            <option value="negro">LFDA · Fondo negro</option>
+            <option value="blanco">LFDA · Fondo blanco</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Formato</label>
+          <select class="form-select" id="rep-formato">
+            <option value="p">A4 Vertical</option>
+            <option value="l">A4 Horizontal</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="rep-preview" class="card" style="display:none">
+      <div class="card-title"><i class="ri-eye-line"></i> Vista previa de datos</div>
+      <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Turno</th><th>Responsable</th><th>Cortados</th><th>DVH Auto</th><th>DVH Manual</th><th>Rechazos</th><th>% Rec.</th></tr></thead><tbody id="rep-prev-body"></tbody></table></div>
+      <div style="margin-top:10px;font-size:12px;color:var(--text3)" id="rep-prev-total"></div>
+    </div>
+
+    <div class="section-actions">
+      <button class="btn btn-outline" onclick="vistaPrevia()"><i class="ri-eye-line"></i> Vista previa</button>
+      <button class="btn btn-primary" onclick="generarPDF()"><i class="ri-download-2-line"></i> Descargar PDF</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       CONFIGURACIÓN (Admin)
+  ══════════════════════════════════ -->
+  <div class="view admin-only" id="view-admin">
+    <div class="page-header"><div class="page-title">Configuración</div><div class="page-sub">Panel de administrador · Diego Pavan</div></div>
+    <div class="admin-grid">
+      <div class="card">
+        <div class="card-title"><i class="ri-building-line"></i> Datos de la empresa</div>
+        <div class="form-grid" style="gap:10px">
+          <div class="form-group"><label class="form-label">Empresa</label><input type="text" class="form-input" id="cfg-empresa" value="La Fábrica de Aberturas"></div>
+          <div class="form-group"><label class="form-label">Sector</label><input type="text" class="form-input" id="cfg-sector" value="Línea de Vidrios"></div>
+          <div class="form-group"><label class="form-label">Ubicación</label><input type="text" class="form-input" id="cfg-ubicacion" value="Cañuelas, Buenos Aires"></div>
+          <div class="form-group"><label class="form-label">Responsable PDF</label><input type="text" class="form-input" id="cfg-resp" value="Diego Pavan · Administrador"></div>
+          <button class="btn btn-primary" style="align-self:start" onclick="guardarConfig()"><i class="ri-save-line"></i> Guardar</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ri-list-settings-line"></i> Equipos de línea</div>
+        <div id="equipos-config"></div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn btn-outline" onclick="addEquipoConfig()"><i class="ri-add-line"></i> Agregar</button>
+          <button class="btn btn-primary" onclick="guardarEquipos()"><i class="ri-save-line"></i> Guardar</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ri-bar-chart-line"></i> Umbrales de alerta</div>
+        <div class="form-grid" style="gap:10px">
+          <div class="form-group"><label class="form-label">% Rechazo · Alerta amarilla</label><input type="number" class="form-input" id="cfg-warn" value="8" min="0" max="100"></div>
+          <div class="form-group"><label class="form-label">% Rechazo · Alerta roja</label><input type="number" class="form-input" id="cfg-danger" value="15" min="0" max="100"></div>
+          <div class="form-group"><label class="form-label">Pulmón mínimo crítico (u.)</label><input type="number" class="form-input" id="cfg-pulmon-min" value="5" min="0"></div>
+          <button class="btn btn-primary" style="align-self:start" onclick="guardarUmbrales()"><i class="ri-save-line"></i> Guardar</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ri-database-2-line"></i> Datos y backup</div>
+        <div class="info-box"><i class="ri-information-line"></i>Los datos se guardan en este navegador (localStorage). Exportá regularmente para respaldo.</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-outline" onclick="exportarDatos()"><i class="ri-download-2-line"></i> Exportar todos los datos (JSON)</button>
+          <button class="btn btn-outline" onclick="document.getElementById('importFile').click()"><i class="ri-upload-2-line"></i> Importar datos (JSON)</button>
+          <input type="file" id="importFile" accept=".json" style="display:none" onchange="importarDatos(event)">
+          <div class="divider"></div>
+          <button class="btn btn-danger" onclick="confirmarLimpiar()"><i class="ri-delete-bin-2-line"></i> Limpiar base de datos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       USUARIOS (Admin)
+  ══════════════════════════════════ -->
+  <div class="view admin-only" id="view-usuarios">
+    <div class="page-header"><div class="page-title">Usuarios</div><div class="page-sub">Control de acceso por rol</div></div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div class="card-title" style="margin-bottom:0"><i class="ri-team-line"></i> Miembros</div>
+        <button class="btn btn-primary" onclick="openModal('modal-nuevo-user')"><i class="ri-user-add-line"></i> Agregar usuario</button>
+      </div>
+      <div id="user-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ri-shield-keyhole-line"></i> Roles y permisos</div>
+      <table>
+        <thead><tr><th>Rol</th><th>Dashboard</th><th>Cargar turno</th><th>Histórico</th><th>Generar PDF</th><th>Admin</th></tr></thead>
+        <tbody>
+          <tr><td><span class="pill pill-danger">Admin</span></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+          <tr><td><span class="pill pill-info">Líder</span></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>—</td></tr>
+          <tr><td><span class="pill pill-neutral">Operario</span></td><td>✓</td><td>—</td><td>Solo lectura</td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- ══ MODAL Nuevo usuario ══ -->
+<div class="modal-bg" id="modal-nuevo-user">
+  <div class="modal">
+    <div class="modal-title">Nuevo usuario</div>
+    <div class="modal-sub">Nombre, rol y PIN de acceso al sistema</div>
+    <div class="form-grid" style="gap:12px">
+      <div class="form-group"><label class="form-label">Nombre completo</label><input type="text" class="form-input" id="nu-nombre" placeholder="Apellido, Nombre"></div>
+      <div class="form-group"><label class="form-label">Rol</label>
+        <select class="form-select" id="nu-rol">
+          <option value="lider">Líder de sector</option>
+          <option value="operario">Operario</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">PIN (4 dígitos)</label><input type="password" class="form-input" id="nu-pin" placeholder="****" maxlength="4" pattern="[0-9]{4}"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('modal-nuevo-user')">Cancelar</button>
+      <button class="btn btn-primary" onclick="agregarUsuario()"><i class="ri-user-add-line"></i> Agregar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════ -->
+<script>
+// ── ESTADO GLOBAL ──
+let darkMode = true;
+let reportType = 'dia';
+let isAdmin = true;
+
+// ── CONFIG POR DEFECTO ──
+const CONFIG_DEFAULT = {
+  empresa: 'La Fábrica de Aberturas',
+  sector: 'Línea de Vidrios',
+  ubicacion: 'Cañuelas, Buenos Aires',
+  resp: 'Diego Pavan · Administrador',
+  warnPct: 8,
+  dangerPct: 15,
+  pulmonMin: 5,
+  equipos: ['Abastecedor','Cortadora Turomas','Canteadora','DVH Automática','DVH Manual']
+};
+
+// ── PERSISTENCIA ──
+function saveData() {
+  try {
+    localStorage.setItem('lfda_historico', JSON.stringify(historico));
+    localStorage.setItem('lfda_usuarios', JSON.stringify(usuarios));
+    localStorage.setItem('lfda_config', JSON.stringify(config));
+  } catch(e) { console.warn('localStorage no disponible'); }
+}
+
+function loadData() {
+  try {
+    const h = localStorage.getItem('lfda_historico');
+    const u = localStorage.getItem('lfda_usuarios');
+    const c = localStorage.getItem('lfda_config');
+    if (h) historico = JSON.parse(h);
+    if (u) usuarios = JSON.parse(u);
+    if (c) config = { ...CONFIG_DEFAULT, ...JSON.parse(c) };
+  } catch(e) { console.warn('Error cargando datos'); }
+}
+
+// ── DATOS ──
+let config = { ...CONFIG_DEFAULT };
+
+let historico = [
+  {fecha:'2026-05-19',turno:'Mañana',resp:'García, R.',p1i:80,p1f:40,p2i:15,p2f:22,p3ai:8,p3af:5,p3bi:12,p3bf:10,cortados:95,canteados:89,dvhA:48,dvhM:16,rechazos:18,balance:'OK'},
+  {fecha:'2026-05-19',turno:'Noche',resp:'Méndez, L.',p1i:40,p1f:55,p2i:22,p2f:18,p3ai:5,p3af:8,p3bi:10,p3bf:12,cortados:88,canteados:82,dvhA:40,dvhM:12,rechazos:6,balance:'OK'},
+  {fecha:'2026-05-18',turno:'Tarde',resp:'Romero, C.',p1i:55,p1f:30,p2i:18,p2f:25,p3ai:10,p3af:6,p3bi:8,p3bf:14,cortados:102,canteados:98,dvhA:55,dvhM:20,rechazos:24,balance:'WARN'},
+];
+
+let usuarios = [
+  {nombre:'Pavan, Diego',rol:'Admin',avatar:'DP'},
+  {nombre:'García, Roberto',rol:'Líder',avatar:'GR'},
+  {nombre:'Méndez, Laura',rol:'Líder',avatar:'ML'},
+  {nombre:'Romero, Carlos',rol:'Operario',avatar:'RC'},
+];
+
+// ── INIT ──
+window.onload = function() {
+  loadData();
+  document.getElementById('f-fecha').value = new Date().toISOString().split('T')[0];
+  aplicarConfig();
+  renderEquiposForm();
+  renderHistorico();
+  renderDashboard();
+  renderUsuarios();
+  renderEquiposConfig();
+};
+
+// ── NAVEGACIÓN ──
+function showView(id, el) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'historico') renderHistorico();
+}
+
+function irAReportes() {
+  showView('reportes', document.querySelector('.nav-item:nth-child(6)'));
+}
+
+// ── TEMA ──
+function toggleTheme() {
+  darkMode = !darkMode;
+  document.body.classList.toggle('light', !darkMode);
+  document.getElementById('themeIcon').className = darkMode ? 'ri-moon-line' : 'ri-sun-line';
+}
+
+// ── DASHBOARD ──
+function renderDashboard() {
+  if (!historico.length) {
+    document.getElementById('dash-sub').textContent = 'Sin registros aún';
+    document.getElementById('d-procesados').textContent = '—';
+    document.getElementById('d-dvh').textContent = '—';
+    document.getElementById('d-rechazos').textContent = '—';
+    document.getElementById('d-balance').textContent = '—';
+    document.getElementById('dash-hist').innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:20px">Sin registros. Cargá el primer turno.</td></tr>';
+    return;
+  }
+  const r = historico[0];
+  const pct = r.cortados > 0 ? Math.round(r.rechazos / r.cortados * 100) : 0;
+  document.getElementById('dash-sub').textContent = `Último: ${r.fecha.split('-').reverse().join('/')} · ${r.turno} · ${r.resp}`;
+  document.getElementById('d-procesados').textContent = r.cortados;
+  document.getElementById('d-dvh').textContent = r.dvhA + r.dvhM;
+  document.getElementById('d-dvh-meta').textContent = `Auto: ${r.dvhA} · Manual: ${r.dvhM}`;
+  document.getElementById('d-rechazos').textContent = r.rechazos;
+  document.getElementById('d-rech-meta').textContent = `${pct}% de rechazo`;
+  document.getElementById('d-balance').textContent = r.balance === 'OK' ? '✓' : '⚠';
+  document.getElementById('d-bal-meta').textContent = r.balance === 'OK' ? 'Todos los tramos OK' : 'Revisar balance';
+
+  // Flujo
+  document.getElementById('fl-abast').textContent = `${r.p1i} u.`;
+  document.getElementById('fl-p1').textContent = `${r.p1f} u.`;
+  document.getElementById('fl-cort').textContent = `${r.cortados} u.`;
+  document.getElementById('fl-p2').textContent = `${r.p2f} u.`;
+  document.getElementById('fl-cant').textContent = `${r.canteados} u.`;
+  document.getElementById('fl-dvha').textContent = `${r.dvhA} u.`;
+  document.getElementById('fl-dvhm').textContent = `${r.dvhM} u.`;
+
+  // Balance rows
+  const balRows = [
+    { label: 'Abast. → P1 → Cortadora', ok: r.balance === 'OK' },
+    { label: 'Cortadora → P2 → Canteadora', ok: r.balance === 'OK' },
+    { label: 'Canteada → P3 → DVH', ok: r.balance === 'OK' },
+  ];
+  document.getElementById('balance-rows').innerHTML = balRows.map(b =>
+    `<div class="balance-row"><span class="balance-label">${b.label}</span><span class="${b.ok ? 'balance-ok' : 'balance-warn'}">${b.ok ? '✓ OK' : '⚠ Revisar'}</span></div>`
+  ).join('');
+
+  // Últimos registros
+  const tc = { Mañana: 'tag-manana', Tarde: 'tag-tarde', Noche: 'tag-noche' };
+  document.getElementById('dash-hist').innerHTML = historico.slice(0, 5).map(r => {
+    const p = r.cortados > 0 ? Math.round(r.rechazos / r.cortados * 100) : 0;
+    const pc = p > config.dangerPct ? 'pill-danger' : p > config.warnPct ? 'pill-warn' : 'pill-success';
+    return `<tr>
+      <td>${r.fecha.split('-').reverse().join('/')}</td>
+      <td><span class="tag-turno ${tc[r.turno] || ''}">${r.turno}</span></td>
+      <td>${r.resp}</td><td>${r.cortados}</td><td>${r.canteados}</td><td>${r.dvhA}</td><td>${r.dvhM}</td>
+      <td><span class="pill ${pc}">${r.rechazos} (${p}%)</span></td>
+      <td><span class="pill ${r.balance === 'OK' ? 'pill-success' : 'pill-warn'}">${r.balance === 'OK' ? '✓ OK' : '⚠ Rev.'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── PULMONES ──
+function calcVar(p) {
+  const i = parseFloat(document.getElementById(p + 'i')?.value || 0);
+  const f = parseFloat(document.getElementById(p + 'f')?.value || 0);
+  const v = f - i;
+  const el = document.getElementById('var-' + p);
+  if (!el) return;
+  el.textContent = 'Δ ' + (v >= 0 ? '+' : '') + v;
+  el.style.color = v > 0 ? 'var(--warn)' : v < 0 ? 'var(--info)' : 'var(--text3)';
+}
+
+// ── EQUIPOS FORM ──
+function renderEquiposForm() {
+  const c = document.getElementById('equipos-form');
+  if (!c) return;
+  c.innerHTML = config.equipos.map((e, i) => `
+    <div class="equipo-row">
+      <div class="equipo-name">${e}</div>
+      <input type="text" class="form-input" placeholder="Operador" id="eq-op-${i}">
+      <input type="number" class="form-input" placeholder="0" id="eq-proc-${i}" oninput="updateTotals()" min="0">
+      <input type="number" class="form-input" placeholder="0" id="eq-rech-${i}" oninput="updateTotals()" min="0">
+      <div id="eq-pct-${i}" style="font-size:12px;color:var(--text3)">0%</div>
+    </div>`).join('');
+}
+
+function updateTotals() {
+  let tp = 0, tr = 0;
+  config.equipos.forEach((_, i) => {
+    const p = parseFloat(document.getElementById('eq-proc-' + i)?.value || 0);
+    const r = parseFloat(document.getElementById('eq-rech-' + i)?.value || 0);
+    tp += p; tr += r;
+    const pct = p > 0 ? Math.round(r / p * 100) : 0;
+    const el = document.getElementById('eq-pct-' + i);
+    if (el) { el.textContent = pct + '%'; el.style.color = pct > config.dangerPct ? 'var(--danger)' : pct > config.warnPct ? 'var(--warn)' : 'var(--text3)'; }
+  });
+  document.getElementById('tot-proc').textContent = tp;
+  document.getElementById('tot-rech').textContent = tr;
+  document.getElementById('tot-pct').textContent = (tp > 0 ? Math.round(tr / tp * 100) : 0) + '%';
+}
+
+// ── GUARDAR TURNO ──
+function guardarTurno() {
+  const fecha = document.getElementById('f-fecha').value;
+  const turno = document.getElementById('f-turno').value;
+  const resp = document.getElementById('f-resp').value || 'Sin asignar';
+  if (!fecha) { toast('Seleccioná una fecha'); return; }
+  const tp = parseInt(document.getElementById('tot-proc').textContent || 0);
+  const tr = parseInt(document.getElementById('tot-rech').textContent || 0);
+  const row = {
+    fecha, turno, resp,
+    p1i: parseFloat(document.getElementById('p1i').value || 0),
+    p1f: parseFloat(document.getElementById('p1f').value || 0),
+    p2i: parseFloat(document.getElementById('p2i').value || 0),
+    p2f: parseFloat(document.getElementById('p2f').value || 0),
+    p3ai: parseFloat(document.getElementById('p3ai').value || 0),
+    p3af: parseFloat(document.getElementById('p3af').value || 0),
+    p3bi: parseFloat(document.getElementById('p3bi').value || 0),
+    p3bf: parseFloat(document.getElementById('p3bf').value || 0),
+    cortados: parseFloat(document.getElementById('eq-proc-1')?.value || 0),
+    canteados: parseFloat(document.getElementById('eq-proc-2')?.value || 0),
+    dvhA: parseFloat(document.getElementById('eq-proc-3')?.value || 0),
+    dvhM: parseFloat(document.getElementById('eq-proc-4')?.value || 0),
+    rechazos: tr,
+    balance: 'OK'
+  };
+  historico.unshift(row);
+  saveData();
+  renderHistorico();
+  limpiarForm();
+  toast('✓ Turno guardado correctamente');
+  showView('historico', document.querySelectorAll('.nav-item')[2]);
+}
+
+function limpiarForm() {
+  ['p1i','p1f','p2i','p2f','p3ai','p3af','p3bi','p3bf','f-resp'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  ['p1','p2','p3a','p3b'].forEach(p => { const el = document.getElementById('var-' + p); if (el) { el.textContent = 'Δ —'; el.style.color = 'var(--text3)'; } });
+  config.equipos.forEach((_, i) => {
+    ['eq-op-','eq-proc-','eq-rech-'].forEach(pfx => { const el = document.getElementById(pfx + i); if (el) el.value = ''; });
+    const el = document.getElementById('eq-pct-' + i);
+    if (el) { el.textContent = '0%'; el.style.color = 'var(--text3)'; }
+  });
+  document.getElementById('tot-proc').textContent = '0';
+  document.getElementById('tot-rech').textContent = '0';
+  document.getElementById('tot-pct').textContent = '0%';
+}
+
+// ── HISTÓRICO ──
+function renderHistorico(data) {
+  const rows = data || historico;
+  const body = document.getElementById('hist-body');
+  if (!body) return;
+  const tc = { Mañana: 'tag-manana', Tarde: 'tag-tarde', Noche: 'tag-noche' };
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="15" style="text-align:center;color:var(--text3);padding:20px">Sin registros</td></tr>';
+    return;
+  }
+  body.innerHTML = rows.map((r, idx) => {
+    const pct = r.cortados > 0 ? Math.round(r.rechazos / r.cortados * 100) : 0;
+    const pc = pct > config.dangerPct ? 'pill-danger' : pct > config.warnPct ? 'pill-warn' : 'pill-success';
+    const realIdx = historico.indexOf(r);
+    return `<tr>
+      <td>${r.fecha.split('-').reverse().join('/')}</td>
+      <td><span class="tag-turno ${tc[r.turno] || ''}">${r.turno}</span></td>
+      <td>${r.resp}</td>
+      <td>${r.p1i}</td><td>${r.p1f}</td><td>${r.p2i}</td><td>${r.p2f}</td>
+      <td>${r.cortados}</td><td>${r.canteados}</td><td>${r.dvhA}</td><td>${r.dvhM}</td>
+      <td><span class="pill ${pc}">${r.rechazos} (${pct}%)</span></td>
+      <td>${pct}%</td>
+      <td><span class="pill ${r.balance === 'OK' ? 'pill-success' : 'pill-warn'}">${r.balance === 'OK' ? '✓ OK' : '⚠ Rev.'}</span></td>
+      ${isAdmin ? `<td><button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="eliminarRegistro(${realIdx})"><i class="ri-delete-bin-line"></i></button></td>` : '<td></td>'}
+    </tr>`;
+  }).join('');
+}
+
+function eliminarRegistro(i) {
+  if (confirm('¿Eliminar este registro?')) {
+    historico.splice(i, 1);
+    saveData();
+    renderHistorico();
+    toast('Registro eliminado');
+  }
+}
+
+function filtrarHistorico() {
+  const tipo = document.getElementById('hist-tipo').value;
+  const desde = document.getElementById('hist-desde').value;
+  const hasta = document.getElementById('hist-hasta').value;
+  let data = [...historico];
+  if (tipo !== 'all') data = data.filter(r => r.turno === tipo);
+  if (desde) data = data.filter(r => r.fecha >= desde);
+  if (hasta) data = data.filter(r => r.fecha <= hasta);
+  renderHistorico(data);
+}
+
+function resetFiltros() {
+  document.getElementById('hist-tipo').value = 'all';
+  document.getElementById('hist-desde').value = '';
+  document.getElementById('hist-hasta').value = '';
+  renderHistorico();
+}
+
+// ── FILTRO DATOS PDF ──
+function filtrarDatosPDF() {
+  let data = [...historico];
+  if (reportType === 'dia') {
+    const f = document.getElementById('rep-dia').value;
+    const t = document.getElementById('rep-turno-dia').value;
+    if (f) data = data.filter(r => r.fecha === f);
+    if (t) data = data.filter(r => r.turno === t);
+  } else if (reportType === 'mes') {
+    const m = document.getElementById('rep-mes').value;
+    if (m) data = data.filter(r => r.fecha.startsWith(m));
+  } else if (reportType === 'rango') {
+    const desde = document.getElementById('rep-desde').value;
+    const hasta = document.getElementById('rep-hasta').value;
+    if (desde) data = data.filter(r => r.fecha >= desde);
+    if (hasta) data = data.filter(r => r.fecha <= hasta);
+  } else if (reportType === 'turno') {
+    const t = document.getElementById('rep-turno-sel').value;
+    const m = document.getElementById('rep-turno-mes').value;
+    if (t) data = data.filter(r => r.turno === t);
+    if (m) data = data.filter(r => r.fecha.startsWith(m));
+  }
+  return data;
+}
+
+// ── VISTA PREVIA ──
+function vistaPrevia() {
+  const data = filtrarDatosPDF();
+  const preview = document.getElementById('rep-preview');
+  const body = document.getElementById('rep-prev-body');
+  const total = document.getElementById('rep-prev-total');
+  const tc = { Mañana: 'tag-manana', Tarde: 'tag-tarde', Noche: 'tag-noche' };
+  if (!data.length) { toast('Sin datos para el filtro seleccionado'); return; }
+  body.innerHTML = data.map(r => {
+    const pct = r.cortados > 0 ? Math.round(r.rechazos / r.cortados * 100) : 0;
+    const pc = pct > config.dangerPct ? 'pill-danger' : pct > config.warnPct ? 'pill-warn' : 'pill-success';
+    return `<tr>
+      <td>${r.fecha.split('-').reverse().join('/')}</td>
+      <td><span class="tag-turno ${tc[r.turno] || ''}">${r.turno}</span></td>
+      <td>${r.resp}</td><td>${r.cortados}</td><td>${r.dvhA}</td><td>${r.dvhM}</td>
+      <td><span class="pill ${pc}">${r.rechazos} (${pct}%)</span></td><td>${pct}%</td>
+    </tr>`;
+  }).join('');
+  const totCort = data.reduce((a, r) => a + r.cortados, 0);
+  const totRech = data.reduce((a, r) => a + r.rechazos, 0);
+  const totPct = totCort > 0 ? Math.round(totRech / totCort * 100) : 0;
+  total.textContent = `${data.length} registro(s) · ${totCort} cortados · ${totRech} rechazos (${totPct}% total)`;
+  preview.style.display = 'block';
+}
+
+// ── SELECTOR TIPO REPORTE ──
+function selectReportType(t) {
+  reportType = t;
+  ['dia','mes','rango','turno'].forEach(tp => {
+    document.getElementById('rt-' + tp).classList.toggle('selected', tp === t);
+    document.getElementById('rep-form-' + tp).style.display = tp === t ? 'block' : 'none';
+  });
+  document.getElementById('rep-preview').style.display = 'none';
+}
+
+// ── PDF ──
+function generarPDF() {
+  const data = filtrarDatosPDF();
+  if (!data.length) { toast('Sin datos para el filtro seleccionado'); return; }
+
+  if (typeof window.jspdf === 'undefined') { toast('✓ PDF listo (cargando librería...)'); return; }
+  const { jsPDF } = window.jspdf;
+  const orient = document.getElementById('rep-formato').value;
+  const fondoNegro = document.getElementById('rep-firma').value === 'negro';
+  const doc = new jsPDF({ orientation: orient === 'l' ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' });
+  const W = orient === 'l' ? 297 : 210;
+  const H = orient === 'l' ? 210 : 297;
+
+  // Fondo
+  if (fondoNegro) {
+    doc.setFillColor(10, 10, 10); doc.rect(0, 0, W, H, 'F');
+    doc.setFillColor(20, 20, 20); doc.rect(0, 0, W, 42, 'F');
+  } else {
+    doc.setFillColor(245, 245, 245); doc.rect(0, 0, W, H, 'F');
+    doc.setFillColor(255, 255, 255); doc.rect(0, 0, W, 42, 'F');
+    doc.setDrawColor(220, 220, 220); doc.line(0, 42, W, 42);
+  }
+
+  // Logo LFDA texto
+  const logoColor = fondoNegro ? [255, 255, 255] : [17, 17, 17];
+  const mutedColor = fondoNegro ? [100, 100, 100] : [140, 140, 140];
+  const textColor = fondoNegro ? [200, 200, 200] : [50, 50, 50];
+  const textColor2 = fondoNegro ? [150, 150, 150] : [100, 100, 100];
+  const bgRow1 = fondoNegro ? [25, 25, 25] : [240, 240, 240];
+  const bgRow2a = fondoNegro ? [15, 15, 15] : [252, 252, 252];
+  const bgRow2b = fondoNegro ? [20, 20, 20] : [246, 246, 246];
+  const footerBg = fondoNegro ? [15, 15, 15] : [235, 235, 235];
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16); doc.setTextColor(...logoColor);
+  doc.text('LA FÁBRICA DE ABERTURAS', 14, 16);
+  // Bracket del logo
+  doc.setDrawColor(...logoColor); doc.setLineWidth(0.7);
+  doc.line(128, 6, 136, 6); doc.line(136, 6, 136, 14);
+
+  doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...mutedColor);
+  doc.text(`${config.sector} · CONTROL DE PRODUCCIÓN`, 14, 26);
+  const hoy = new Date().toLocaleDateString('es-AR');
+  doc.text(`Generado: ${hoy} · ${config.resp}`, W - 14, 18, { align: 'right' });
+  doc.text('lafabricadeaberturas.com', W - 14, 26, { align: 'right' });
+
+  doc.setDrawColor(...bgRow1); doc.line(14, 44, W - 14, 44);
+
+  doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(...logoColor);
+  const tipoLabel = { dia: 'DIARIO', mes: 'MENSUAL', rango: 'RANGO DE FECHAS', turno: 'POR TURNO' };
+  doc.text(`REPORTE DE PRODUCCIÓN · ${tipoLabel[reportType] || ''}`, 14, 56);
+  doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(...mutedColor);
+  doc.text(`${data.length} registro(s) incluidos`, 14, 64);
+
+  // Tabla
+  const cols = ['Fecha', 'Turno', 'Responsable', 'Cortados', 'Canteados', 'DVH Auto', 'DVH Manual', 'Rechazos', '% Rec.', 'Balance'];
+  const colW = orient === 'l'
+    ? [22, 20, 44, 18, 20, 18, 20, 22, 16, 18]
+    : [22, 20, 36, 16, 18, 16, 18, 20, 14, 16];
+
+  let y = 74;
+  doc.setFillColor(...bgRow1); doc.rect(14, y - 5, W - 28, 10, 'F');
+  doc.setFontSize(7); doc.setTextColor(...textColor2);
+  let cx = 14;
+  cols.forEach((c, i) => { doc.text(c, cx + 1, y + 1); cx += colW[i]; });
+  y += 10;
+
+  data.forEach((r, ri) => {
+    doc.setFillColor(...(ri % 2 === 0 ? bgRow2a : bgRow2b));
+    doc.rect(14, y - 5, W - 28, 9, 'F');
+    doc.setTextColor(...textColor); cx = 14;
+    const pct = r.cortados > 0 ? Math.round(r.rechazos / r.cortados * 100) : 0;
+    const vals = [
+      r.fecha.split('-').reverse().join('/'), r.turno, r.resp,
+      '' + r.cortados, '' + r.canteados, '' + r.dvhA, '' + r.dvhM,
+      '' + r.rechazos, pct + '%', r.balance === 'OK' ? '✓ OK' : '⚠ Rev.'
+    ];
+    vals.forEach((v, i) => { doc.text(v, cx + 1, y + 1); cx += colW[i]; });
+    y += 9;
+    if (y > H - 30) { doc.addPage(); y = 20; }
+  });
+
+  // Totales
+  y += 4;
+  const totCort = data.reduce((a, r) => a + r.cortados, 0);
+  const totDvhA = data.reduce((a, r) => a + r.dvhA, 0);
+  const totDvhM = data.reduce((a, r) => a + r.dvhM, 0);
+  const totRech = data.reduce((a, r) => a + r.rechazos, 0);
+  const totPct = totCort > 0 ? Math.round(totRech / totCort * 100) : 0;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...logoColor);
+  doc.text(`TOTALES: ${totCort} cortados · ${totDvhA} DVH Auto · ${totDvhM} DVH Manual · ${totRech} rechazos (${totPct}%)`, 14, y);
+
+  // Footer
+  doc.setFillColor(...footerBg); doc.rect(0, H - 14, W, 14, 'F');
+  doc.setFontSize(6.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...mutedColor);
+  doc.text(`${config.empresa} · ${config.sector} · ${config.ubicacion}`, 14, H - 5);
+  doc.text('Página 1', W - 14, H - 5, { align: 'right' });
+
+  doc.save(`Reporte_LFDA_${reportType}_${hoy.replace(/\//g, '-')}.pdf`);
+  toast('✓ PDF descargado correctamente');
+}
+
+// ── USUARIOS ──
+function renderUsuarios() {
+  const c = document.getElementById('user-list'); if (!c) return;
+  const rc = { Admin: 'pill-danger', Líder: 'pill-info', Operario: 'pill-neutral' };
+  c.innerHTML = usuarios.map((u, i) => `
+    <div class="user-row">
+      <div class="avatar ${u.rol === 'Admin' ? 'admin-av' : ''}">${u.avatar}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">${u.nombre}</div><div style="font-size:11px;color:var(--text3)">${u.rol === 'Admin' ? 'Administrador' : u.rol}</div></div>
+      <span class="pill ${rc[u.rol] || 'pill-neutral'}">${u.rol}</span>
+      ${u.rol !== 'Admin' ? `<button class="btn btn-danger" style="padding:5px 9px;font-size:12px" onclick="eliminarUsuario(${i})"><i class="ri-delete-bin-line"></i></button>` : ''}
+    </div>`).join('');
+}
+
+function eliminarUsuario(i) {
+  if (confirm('¿Eliminar a ' + usuarios[i].nombre + '?')) {
+    usuarios.splice(i, 1); saveData(); renderUsuarios(); toast('Usuario eliminado');
+  }
+}
+
+function agregarUsuario() {
+  const nombre = document.getElementById('nu-nombre').value.trim();
+  const rol = document.getElementById('nu-rol');
+  if (!nombre) { toast('Ingresá un nombre'); return; }
+  const rolText = rol.options[rol.selectedIndex].text;
+  const av = nombre.split(',').map(p => p.trim()[0]).join('').toUpperCase().slice(0, 2);
+  usuarios.push({ nombre, rol: rolText.includes('Líder') ? 'Líder' : 'Operario', avatar: av });
+  saveData(); renderUsuarios(); closeModal('modal-nuevo-user');
+  document.getElementById('nu-nombre').value = '';
+  toast('✓ Usuario agregado');
+}
+
+// ── CONFIG ──
+function aplicarConfig() {
+  const c = document.getElementById('cfg-empresa'); if (c) c.value = config.empresa;
+  const s = document.getElementById('cfg-sector'); if (s) s.value = config.sector;
+  const u = document.getElementById('cfg-ubicacion'); if (u) u.value = config.ubicacion;
+  const r = document.getElementById('cfg-resp'); if (r) r.value = config.resp;
+  const w = document.getElementById('cfg-warn'); if (w) w.value = config.warnPct;
+  const d = document.getElementById('cfg-danger'); if (d) d.value = config.dangerPct;
+  const p = document.getElementById('cfg-pulmon-min'); if (p) p.value = config.pulmonMin;
+}
+
+function guardarConfig() {
+  config.empresa = document.getElementById('cfg-empresa').value;
+  config.sector = document.getElementById('cfg-sector').value;
+  config.ubicacion = document.getElementById('cfg-ubicacion').value;
+  config.resp = document.getElementById('cfg-resp').value;
+  saveData(); toast('✓ Configuración guardada');
+}
+
+function guardarUmbrales() {
+  config.warnPct = parseInt(document.getElementById('cfg-warn').value);
+  config.dangerPct = parseInt(document.getElementById('cfg-danger').value);
+  config.pulmonMin = parseInt(document.getElementById('cfg-pulmon-min').value);
+  saveData(); toast('✓ Umbrales guardados');
+}
+
+function guardarEquipos() {
+  config.equipos = [];
+  document.querySelectorAll('[id^="cfg-eq-"]').forEach(el => config.equipos.push(el.value.trim()));
+  saveData(); renderEquiposForm(); toast('✓ Equipos actualizados');
+}
+
+function renderEquiposConfig() {
+  const c = document.getElementById('equipos-config'); if (!c) return;
+  c.innerHTML = config.equipos.map((e, i) => `
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px">
+      <input type="text" class="form-input" value="${e}" id="cfg-eq-${i}" style="flex:1">
+      ${i >= 5 ? `<button class="btn btn-danger" style="padding:5px 9px" onclick="removeEquipoConfig(${i})"><i class="ri-close-line"></i></button>` : ''}
+    </div>`).join('');
+}
+
+function addEquipoConfig() { config.equipos.push('Nuevo equipo'); renderEquiposConfig(); }
+function removeEquipoConfig(i) { config.equipos.splice(i, 1); renderEquiposConfig(); }
+
+// ── BACKUP ──
+function exportarDatos() {
+  const blob = new Blob([JSON.stringify({ historico, usuarios, config }, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'LFDA_backup_' + new Date().toISOString().split('T')[0] + '.json';
+  a.click(); toast('✓ Datos exportados');
+}
+
+function importarDatos(event) {
+  const file = event.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.historico) historico = data.historico;
+      if (data.usuarios) usuarios = data.usuarios;
+      if (data.config) config = { ...CONFIG_DEFAULT, ...data.config };
+      saveData(); aplicarConfig(); renderEquiposForm(); renderHistorico(); renderDashboard(); renderUsuarios(); renderEquiposConfig();
+      toast('✓ Datos importados correctamente');
+    } catch (err) { toast('Error al importar: archivo inválido'); }
+  };
+  reader.readAsText(file);
+}
+
+function confirmarLimpiar() {
+  if (confirm('¿Borrar TODOS los registros históricos? Esta acción no se puede deshacer.')) {
+    historico = []; saveData(); renderHistorico(); renderDashboard(); toast('Base de datos limpiada');
+  }
+}
+
+// ── MODAL ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', e => { if (e.target.classList.contains('modal-bg')) e.target.classList.remove('open'); });
+
+// ── TOAST ──
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</html>
