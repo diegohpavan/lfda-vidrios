@@ -811,14 +811,6 @@ function renderAnalisis(){
   if(!navFecha)navFecha=hist[0].fecha;
   if(!navMes)navMes=hist[0].fecha.slice(0,7);
 
-  // Ocultar/mostrar secciones según modo y datos disponibles
-  const esMes=navModo==='mes';
-  const hayDatos=datos.length>0;
-  document.getElementById('sec-pulmones').style.display=(navModo==='turno'&&hayDatos)?'':'none';
-  document.getElementById('sec-velocidad').style.display=(navModo==='turno'&&hayDatos)?'':'none';
-  document.getElementById('sec-rechazo').style.display=hayDatos?'':'none';
-  document.getElementById('sec-mensual').style.display=esMes?'':'none';
-
   // ── Seleccionar datos según modo ──
   let hoy=null, datos=[], navLbl='', navSub='';
 
@@ -850,6 +842,14 @@ function renderAnalisis(){
 
   document.getElementById('nav-label').textContent=navLbl;
   document.getElementById('nav-sub').textContent=navSub;
+
+  // Ocultar/mostrar secciones según modo y datos disponibles
+  const esMes=navModo==='mes';
+  const hayDatos=datos.length>0;
+  document.getElementById('sec-pulmones').style.display=(navModo==='turno'&&hayDatos)?'':'none';
+  document.getElementById('sec-velocidad').style.display=(navModo==='turno'&&hayDatos)?'':'none';
+  document.getElementById('sec-rechazo').style.display=hayDatos?'':'none';
+  document.getElementById('sec-mensual').style.display=esMes?'':'none';
 
   // ── KPIs (suma de todos los datos del período) ──
   const totProc=datos.reduce((a,r)=>a+r.equipos.reduce((b,e)=>b+e.proc,0),0);
