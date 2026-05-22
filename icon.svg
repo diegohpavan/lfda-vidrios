@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#0a0a0a" rx="80"/>
+  <polyline points="370,100 408,100 408,138" fill="none" stroke="white" stroke-width="16" stroke-linecap="square" stroke-linejoin="miter"/>
+  <text x="256" y="210" font-family="Arial Black, Arial" font-weight="900" font-size="118" fill="white" text-anchor="middle" letter-spacing="3">LA</text>
+  <text x="256" y="325" font-family="Arial Black, Arial" font-weight="900" font-size="88" fill="white" text-anchor="middle" letter-spacing="1">FÁBRICA</text>
+  <text x="256" y="420" font-family="Arial Black, Arial" font-weight="900" font-size="60" fill="#888888" text-anchor="middle" letter-spacing="4">VIDRIOS</text>
+</svg>
