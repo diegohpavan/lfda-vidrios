@@ -1,4 +1,4 @@
-const CACHE = 'lfda-v1';
+const CACHE = 'lfda-v3';
 const ASSETS = [
   '/lfda-vidrios/',
   '/lfda-vidrios/index.html',
