@@ -503,7 +503,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
         </div>
         <div class="c">
           <div class="ct"><div class="ct-l"><i class="ri-database-2-line"></i> Datos</div></div>
-          <div class="ib"><i class="ri-information-line" style="color:var(--blue)"></i> Los datos se guardan automáticamente en este navegador. Si borrás el historial del navegador o usás otro dispositivo, los datos no van a estar. Para compartir datos entre dispositivos, contactá al administrador.</div>
+          <div class="ib"><i class="ri-information-line" style="color:var(--blue)"></i> Los datos se sincronizan automáticamente en todos los dispositivos via Firebase. Cualquier turno cargado desde el celular aparece en la PC y viceversa en tiempo real.</div>
           <button class="btn bd" onclick="limpiarDB()"><i class="ri-delete-bin-2-line"></i> Borrar todos los registros</button>
         </div>
       </div>
@@ -648,9 +648,11 @@ async function deleteTurno(id){
 
 function loadTurnos(){
   showSyncing(true);
-  db.collection('turnos').orderBy('fecha','desc').orderBy('ts','desc')
+  db.collection('turnos').orderBy('fecha','desc')
     .onSnapshot(snap=>{
       hist = snap.docs.map(d=>({...d.data(), _id:d.id}));
+      // Ordenar por fecha desc y timestamp desc en cliente
+      hist.sort((a,b)=>b.fecha.localeCompare(a.fecha)||(b.ts?.seconds||0)-(a.ts?.seconds||0));
       showSyncing(false);
       renderAnalisis();
       toast('✓ Datos sincronizados');
