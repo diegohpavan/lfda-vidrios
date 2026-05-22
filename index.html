@@ -89,7 +89,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .bi.on{color:var(--text)}.bi.hide{display:none}
 
 /* VIEWS */
-.vw{display:none}.vw.on{display:block}
+.vw{display:none;min-height:0}.vw.on{display:block}
 .ph{margin-bottom:20px}
 .pt{font-size:22px;font-weight:600;letter-spacing:-.5px}
 .ps{font-size:12px;color:var(--text3);margin-top:3px}
@@ -534,9 +534,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
   <!-- BOTTOM NAV -->
   <nav class="bnav">
     <div class="bi on" id="bn-analisis" onclick="sv('analisis',this,'b')"><i class="ri-pulse-line"></i><span>Análisis</span></div>
-    <div class="bi hide" id="bn-carga" onclick="sv('carga',this,'b')"><i class="ri-edit-2-line"></i><span>Cargar</span></div>
+    <div class="bi" id="bn-carga" onclick="sv('carga',this,'b')"><i class="ri-edit-2-line"></i><span>Cargar</span></div>
     <div class="bi" id="bn-pdf" onclick="sv('pdf',this,'b')"><i class="ri-file-pdf-line"></i><span>PDF</span></div>
-    <div class="bi hide" id="bn-admin" onclick="sv('config',this,'b')"><i class="ri-settings-4-line"></i><span>Admin</span></div>
+    <div class="bi" id="bn-admin" onclick="sv('config',this,'b')"><i class="ri-settings-4-line"></i><span>Admin</span></div>
   </nav>
 </div>
 
