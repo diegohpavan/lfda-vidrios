@@ -557,7 +557,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
     <div class="sheet-eq" id="sh-eq"></div>
     <div style="margin-top:16px;display:flex;gap:8px">
       <button class="btn bo" style="flex:1" onclick="closeSheet()">Cerrar</button>
-      <button class="btn bd" id="sh-del-btn" style="flex:1"><i class="ri-delete-bin-line"></i> Eliminar</button>
+      <button class="btn bp" id="sh-edit-btn" style="flex:1"><i class="ri-edit-line"></i> Editar</button>
+      <button class="btn bd" id="sh-del-btn"><i class="ri-delete-bin-line"></i></button>
     </div>
   </div>
 </div>
@@ -637,6 +638,17 @@ async function saveTurno(turno){
   }catch(e){
     showSyncing(false);
     toast('⚠ Error al guardar en Firebase: '+e.message);
+  }
+}
+
+async function upsertTurno(id, datos){
+  try{
+    showSyncing(true);
+    await db.collection('turnos').doc(id).update({...datos, tsEdit: firebase.firestore.FieldValue.serverTimestamp()});
+    showSyncing(false);
+  }catch(e){
+    showSyncing(false);
+    toast('⚠ Error al actualizar: '+e.message);
   }
 }
 
@@ -764,21 +776,46 @@ function setModo(m){
   document.querySelectorAll('.modo-btn').forEach(b=>b.classList.remove('on'));
   document.getElementById('modo-'+m).classList.add('on');
   if(m==='turno'){navIdx=0;}
-  if(m==='dia'&&hist.length){navFecha=hist[0].fecha;}
+  if(m==='dia'&&hist.length){
+    // Ir al día más reciente con datos
+    const fechasUnicas=[...new Set(hist.map(r=>r.fecha))].sort((a,b)=>b.localeCompare(a));
+    navFecha=fechasUnicas[0];
+  }
   if(m==='mes'&&hist.length){navMes=hist[0].fecha.slice(0,7);}
   renderAnalisis();
 }
 
 function navPrev(){
-  if(navModo==='turno'){if(navIdx<hist.length-1)navIdx++;}
-  else if(navModo==='dia'){const d=new Date(navFecha||new Date());d.setDate(d.getDate()-1);navFecha=d.toISOString().split('T')[0];}
-  else{const d=new Date((navMes||new Date().toISOString().slice(0,7))+'-01');d.setMonth(d.getMonth()-1);navMes=d.toISOString().slice(0,7);}
+  if(navModo==='turno'){
+    if(navIdx<hist.length-1)navIdx++;
+  } else if(navModo==='dia'){
+    // Ir al día anterior que tenga datos
+    const fechasUnicas=[...new Set(hist.map(r=>r.fecha))].sort((a,b)=>b.localeCompare(a));
+    const idxActual=fechasUnicas.indexOf(navFecha);
+    if(idxActual<fechasUnicas.length-1)navFecha=fechasUnicas[idxActual+1];
+    else navFecha=fechasUnicas[fechasUnicas.length-1];
+  } else {
+    const d=new Date((navMes||new Date().toISOString().slice(0,7))+'-01');
+    d.setMonth(d.getMonth()-1);
+    navMes=d.toISOString().slice(0,7);
+  }
   renderAnalisis();
 }
+
 function navNext(){
-  if(navModo==='turno'){if(navIdx>0)navIdx--;}
-  else if(navModo==='dia'){const d=new Date(navFecha||new Date());d.setDate(d.getDate()+1);navFecha=d.toISOString().split('T')[0];}
-  else{const d=new Date((navMes||new Date().toISOString().slice(0,7))+'-01');d.setMonth(d.getMonth()+1);navMes=d.toISOString().slice(0,7);}
+  if(navModo==='turno'){
+    if(navIdx>0)navIdx--;
+  } else if(navModo==='dia'){
+    // Ir al día siguiente que tenga datos
+    const fechasUnicas=[...new Set(hist.map(r=>r.fecha))].sort((a,b)=>b.localeCompare(a));
+    const idxActual=fechasUnicas.indexOf(navFecha);
+    if(idxActual>0)navFecha=fechasUnicas[idxActual-1];
+    else navFecha=fechasUnicas[0];
+  } else {
+    const d=new Date((navMes||new Date().toISOString().slice(0,7))+'-01');
+    d.setMonth(d.getMonth()+1);
+    navMes=d.toISOString().slice(0,7);
+  }
   renderAnalisis();
 }
 function navHoy(){
@@ -1043,6 +1080,10 @@ function showSheet(idx){
       </div>
     </div>`;
   }).join('');
+  document.getElementById('sh-edit-btn').onclick=()=>{
+    editarTurno(idx);
+    closeSheet();
+  };
   document.getElementById('sh-del-btn').onclick=()=>{
     if(confirm('¿Eliminar este turno?')){
       const id=hist[idx]._id;
@@ -1051,8 +1092,11 @@ function showSheet(idx){
       toast('Turno eliminado');
     }
   };
-  if(curUser?.r!=='Admin')document.getElementById('sh-del-btn').style.display='none';
-  else document.getElementById('sh-del-btn').style.display='';
+  if(curUser?.r!=='Admin'){
+    document.getElementById('sh-del-btn').style.display='none';
+  } else {
+    document.getElementById('sh-del-btn').style.display='';
+  }
   document.getElementById('sheet-bg').classList.add('open');
 }
 
@@ -1117,6 +1161,49 @@ function updTot(){
   document.getElementById('tot-pct').textContent=(tp>0?Math.round(tr/tp*100):0)+'%';
 }
 
+function editarTurno(idx){
+  const r=hist[idx];
+  editandoId=r._id||null;
+
+  // Cargar datos en el formulario
+  document.getElementById('f-fecha').value=r.fecha;
+  document.getElementById('f-turno').value=r.turno;
+  document.getElementById('f-resp').value=r.resp;
+  document.getElementById('f-horas').value=r.horas||getH(r.turno);
+
+  // Pulmones
+  ['p1i','p1f','p2i','p2f','p3ai','p3af','p3bi','p3bf'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.value=r[id]||0;
+  });
+  ['p1','p2','p3a','p3b'].forEach(p=>calcVar(p));
+
+  // Equipos
+  if(r.equipos){
+    r.equipos.forEach((e,i)=>{
+      const op=document.getElementById('eq-op-'+i);
+      const proc=document.getElementById('eq-proc-'+i);
+      const rech=document.getElementById('eq-rech-'+i);
+      if(op)op.value=e.op||'';
+      if(proc)proc.value=e.proc||0;
+      if(rech)rech.value=e.rech||0;
+    });
+    updTot();
+  }
+
+  // Cambiar título del botón guardar
+  document.querySelector('#vw-carga .btn.bp.bblock').innerHTML='<i class="ri-save-line"></i> Actualizar Turno';
+
+  // Ir a la pantalla de carga
+  sv('carga',document.getElementById('sn-carga'));
+  document.getElementById('bn-carga').classList.add('on');
+  document.querySelectorAll('.bi').forEach(b=>{if(b.id!=='bn-carga')b.classList.remove('on');});
+  toast('Editando turno del '+r.fecha.split('-').reverse().join('/'));
+}
+
+// ID del turno que se está editando (null = nuevo)
+let editandoId = null;
+
 function guardar(){
   const fecha=document.getElementById('f-fecha').value;
   const turno=document.getElementById('f-turno').value;
@@ -1129,7 +1216,7 @@ function guardar(){
     rech:parseFloat(document.getElementById('eq-rech-'+i)?.value||0),
   }));
   const horasVal=parseFloat(document.getElementById('f-horas').value)||getH(turno);
-  const nuevoTurno={fecha,turno,resp,horas:horasVal,
+  const datos={fecha,turno,resp,horas:horasVal,
     p1i:parseFloat(document.getElementById('p1i').value||0),
     p1f:parseFloat(document.getElementById('p1f').value||0),
     p2i:parseFloat(document.getElementById('p2i').value||0),
@@ -1142,16 +1229,35 @@ function guardar(){
     dvhM:parseFloat(document.getElementById('eq-proc-4')?.value||0),
     equipos
   };
+
+  // Buscar si ya existe un registro para este día+turno
+  const existente = editandoId
+    ? hist.find(r=>r._id===editandoId)
+    : hist.find(r=>r.fecha===fecha&&r.turno===turno);
+
+  if(existente&&existente._id){
+    // ACTUALIZAR registro existente
+    upsertTurno(existente._id, datos);
+    toast('⏳ Actualizando turno...');
+  } else {
+    // CREAR nuevo registro
+    saveTurno(datos);
+    toast('⏳ Guardando turno...');
+  }
+
+  editandoId=null;
   save();
-  saveTurno(nuevoTurno);
   limpiar(true);
-  toast('⏳ Guardando turno...');
   sv('analisis',document.getElementById('sn-analisis'));
   document.getElementById('bn-analisis').classList.add('on');
   document.querySelectorAll('.bi').forEach(b=>{if(b.id!=='bn-analisis')b.classList.remove('on');});
 }
 
 function limpiar(silent){
+  editandoId=null;
+  // Reset botón guardar
+  const btn=document.querySelector('#vw-carga .btn.bp.bblock');
+  if(btn)btn.innerHTML='<i class="ri-save-line"></i> Guardar Turno';
   ['p1i','p1f','p2i','p2f','p3ai','p3af','p3bi','p3bf'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['p1','p2','p3a','p3b'].forEach(p=>{const el=document.getElementById('pv-'+p);if(el){el.textContent='Δ —';el.style.color='var(--text3)';}});
   cfg.equipos.forEach((_,i)=>{['eq-op-','eq-proc-','eq-rech-'].forEach(pfx=>{const el=document.getElementById(pfx+i);if(el)el.value='';});const el=document.getElementById('eq-pct-'+i);if(el){el.textContent='0%';el.style.color='var(--text3)';}});
