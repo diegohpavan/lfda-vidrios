@@ -1,4 +1,4 @@
-const CACHE = 'lfda-v5';
+const CACHE = 'lfda-v6';
 const ASSETS = [
   '/lfda-vidrios/',
   '/lfda-vidrios/index.html',
@@ -19,12 +19,21 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Network first para Firebase, cache first para assets
-  if (e.request.url.includes('firebase') || e.request.url.includes('googleapis')) {
-    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-  } else {
-    e.respondWith(
-      caches.match(e.request).then(cached => cached || fetch(e.request))
-    );
+  // Firebase y APIs: solo red
+  if (e.request.url.includes('firebase') || 
+      e.request.url.includes('googleapis') ||
+      e.request.url.includes('gstatic')) {
+    return;
   }
+  // HTML: red primero, cache como fallback
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match('/lfda-vidrios/index.html'))
+    );
+    return;
+  }
+  // Resto: cache primero
+  e.respondWith(
+    caches.match(e.request).then(cached => cached || fetch(e.request))
+  );
 });
