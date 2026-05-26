@@ -802,6 +802,7 @@ function sv(id,el,type){
   else{document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));}
   if(el)el.classList.add('on');
   if(id==='analisis')renderAnalisis();
+  if(id==='carga')setTimeout(precargarTurno,100);
   window.scrollTo(0,0);
 }
 
