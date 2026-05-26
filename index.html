@@ -192,6 +192,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .en{font-size:13px;font-weight:600;margin-bottom:10px}
 .efields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end}
 .epct{font-size:13px;font-weight:600;color:var(--text3);text-align:center;margin-top:6px}
+.paro-item{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.paro-motivo{font-size:12px;font-weight:500;flex:1}
+.paro-tiempo{font-size:11px;color:var(--text3);white-space:nowrap}
+.paro-mins{font-size:12px;font-weight:600;color:var(--danger);white-space:nowrap}
+.disp-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px}
+.disp-ok{background:#22c55e20;color:var(--green)}
+.disp-warn{background:#f59e0b20;color:var(--amber)}
+.disp-bad{background:#ef444420;color:var(--red)}
 .totbar{background:var(--bg3);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:4px}
 .totlbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
 .totval{font-size:15px;font-weight:600}
@@ -579,6 +587,38 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
   </div>
 </div>
 
+<!-- MODAL PARO -->
+<div class="mbg" id="m-paro">
+  <div class="mc">
+    <div class="mt">Registrar paro</div>
+    <div class="ms" id="mp-eq-nombre"></div>
+    <div class="fg" style="gap:10px">
+      <div class="fg fg2">
+        <div><label class="fl">Hora inicio</label><input type="time" class="fi" id="mp-ini" oninput="calcMinsParo()"></div>
+        <div><label class="fl">Hora fin</label><input type="time" class="fi" id="mp-fin" oninput="calcMinsParo()"></div>
+      </div>
+      <div style="text-align:center;font-size:13px;font-weight:600;color:var(--danger)" id="mp-mins"></div>
+      <div><label class="fl">Motivo</label>
+        <select class="fs" id="mp-motivo">
+          <option>Rotura mecánica</option>
+          <option>Falta de material</option>
+          <option>Falta de personal</option>
+          <option>Setup / cambio de herramienta</option>
+          <option>Mantenimiento preventivo</option>
+          <option>Problema eléctrico</option>
+          <option>Espera de instrucciones</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div><label class="fl">Observaciones (opcional)</label><input type="text" class="fi" id="mp-obs" placeholder="Ej: manguera rota en cilindro principal"></div>
+    </div>
+    <div class="ma">
+      <button class="btn bo" onclick="closeM('m-paro')">Cancelar</button>
+      <button class="btn bp" onclick="guardarParo()"><i class="ri-save-line"></i> Guardar paro</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -948,7 +988,15 @@ function renderAnalisis(){
     // ── VELOCIDAD por equipo ──
     const hRef=hoy.horas||getH(hoy.turno);
     document.getElementById('vel-horas').textContent=hRef+' h/turno';
-    const vels=hoy.equipos.map(e=>({...e,vel:Math.round(e.proc/hRef*10)/10}));
+    const vels=hoy.equipos.map(e=>{
+      const minsParados=e.minsParados||0;
+      const horasDisp=Math.max((hRef*60-minsParados)/60,0.1);
+      const vel=Math.round(e.proc/horasDisp*10)/10;
+      const disp=Math.round((hRef*60-minsParados)/(hRef*60)*100);
+      const calidad=e.proc>0?Math.round((e.proc-e.rech)/e.proc*100):100;
+      const velTeorica=Math.max(...hoy.equipos.map(x=>Math.round(x.proc/(hRef)*10)/10),0.1);
+      return {...e,vel,horasDisp,minsParados,disp,calidad};
+    });
     const maxVel=Math.max(...vels.map(e=>e.vel),0.1);
     const minVel=Math.min(...vels.filter(e=>e.proc>0).map(e=>e.vel),Infinity);
     document.getElementById('maq-rows').innerHTML=vels.map(e=>{
@@ -957,8 +1005,12 @@ function renderAnalisis(){
       const esRapido=e.vel===maxVel&&e.proc>0;
       const barColor=esCuello?'var(--red)':esRapido?'var(--green)':'var(--blue)';
       const badge=esCuello?`<span class="maq-badge mb-cuello">Cuello</span>`:esRapido?`<span class="maq-badge mb-rapido">Más rápido</span>`:`<span class="maq-badge mb-ok"></span>`;
+      const dispTxt=e.minsParados>0?`<span style="font-size:10px;color:${e.disp>=85?'var(--green)':e.disp>=70?'var(--amber)':'var(--red)'}"> · Disp.${e.disp}% (${e.minsParados}min parado)</span>`:'';
       return `<div class="maq-row">
-        <div class="maq-nombre">${e.nombre}</div>
+        <div style="min-width:130px">
+          <div class="maq-nombre">${e.nombre}</div>
+          <div style="font-size:10px;color:var(--text3)">${e.proc>0?e.vel+' u/h real':'Sin datos'}${dispTxt}</div>
+        </div>
         <div class="maq-barra-wrap"><div class="maq-barra" style="width:${pct}%;background:${barColor}"></div></div>
         <div class="maq-vel" style="color:${barColor}">${e.proc>0?e.vel+' u/h':'—'}</div>
         ${badge}
@@ -1069,15 +1121,30 @@ function showSheet(idx){
     return `<div class="pd"><div class="pd-tag">${p.tag}</div><div class="pd-val">${p.fin}</div><div class="pd-d" style="color:${dc}">${(d>=0?'+':'')+d}</div></div>`;
   }).join('');
   document.getElementById('sh-eq').innerHTML=r.equipos.map(e=>{
-    const vel=Math.round(e.proc/getH(r.turno)*10)/10;
+    const hRef=r.horas||getH(r.turno);
+    const minsParados=e.minsParados||0;
+    const horasDisp=Math.max((hRef*60-minsParados)/60,0.1);
+    const vel=Math.round(e.proc/horasDisp*10)/10;
+    const disp=Math.round((hRef*60-minsParados)/(hRef*60)*100);
     const pct=e.proc>0?Math.round(e.rech/e.proc*100):0;
     const rc=pct>cfg.dangerPct?'var(--red)':pct>cfg.warnPct?'var(--amber)':'var(--green)';
-    return `<div class="seq-row">
-      <div class="seq-name">${e.nombre}</div>
-      <div style="text-align:right">
-        <div class="seq-vel">${e.proc} u · ${vel} u/h</div>
-        <div class="seq-rech" style="color:${rc};font-size:11px">Rechazo: ${e.rech} (${pct}%)</div>
+    const dc=disp>=85?'var(--green)':disp>=70?'var(--amber)':'var(--red)';
+    const parosHtml=(e.paros&&e.paros.length)?e.paros.map(p=>`
+      <div style="font-size:11px;color:var(--text3);padding:3px 0;border-top:1px solid var(--border);margin-top:4px">
+        <span style="color:var(--red)"><i class="ri-time-line"></i> ${p.mins}min</span> · ${p.motivo} (${p.ini}→${p.fin})${p.obs?' · '+p.obs:''}
+      </div>`).join(''):'';
+    return `<div class="seq-row" style="flex-direction:column;align-items:flex-start">
+      <div style="display:flex;width:100%;align-items:center;gap:10px">
+        <div class="seq-name">${e.nombre}</div>
+        <div style="text-align:right;margin-left:auto">
+          <div class="seq-vel">${e.proc} u · ${vel} u/h</div>
+          <div style="font-size:11px">
+            <span style="color:${rc}">Rechazo: ${pct}%</span>
+            ${minsParados>0?`· <span style="color:${dc}">Disp: ${disp}%</span>`:''}
+          </div>
+        </div>
       </div>
+      ${parosHtml}
     </div>`;
   }).join('');
   document.getElementById('sh-edit-btn').onclick=()=>{
@@ -1133,17 +1200,110 @@ function calcVar(p){
   el.style.color=v>8?'var(--red)':v>0?'var(--amber)':v<0?'var(--blue)':'var(--text3)';
 }
 
+// Paros por equipo: array de arrays
+let parosForm = [];
+
 function buildEquipForm(){
+  parosForm = cfg.equipos.map(()=>[]);
   document.getElementById('equip-form').innerHTML=cfg.equipos.map((e,i)=>`
-    <div class="ebloque">
-      <div class="en">${e}</div>
+    <div class="ebloque" id="eb-${i}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="en" style="margin-bottom:0">${e}</div>
+        <span id="eq-disp-${i}"></span>
+      </div>
       <div class="efields">
         <div><label class="fl">Operador</label><input type="text" class="fi" id="eq-op-${i}" placeholder="Nombre"></div>
         <div><label class="fl">Procesados</label><input type="number" class="fi" id="eq-proc-${i}" placeholder="0" oninput="updTot()" min="0" inputmode="numeric"></div>
         <div><label class="fl">Rechazados</label><input type="number" class="fi" id="eq-rech-${i}" placeholder="0" oninput="updTot()" min="0" inputmode="numeric"></div>
       </div>
-      <div class="epct" id="eq-pct-${i}">0%</div>
+      <div id="paros-list-${i}" style="margin-top:8px"></div>
+      <button class="btn bo" style="margin-top:8px;padding:7px 12px;font-size:12px;width:100%;justify-content:center" onclick="abrirModalParo(${i})">
+        <i class="ri-time-line"></i> + Registrar paro de máquina
+      </button>
+      <div class="epct" id="eq-pct-${i}">0% rechazo</div>
     </div>`).join('');
+}
+
+const MOTIVOS_PARO = [
+  'Rotura mecánica','Falta de material','Falta de personal',
+  'Setup / cambio de herramienta','Mantenimiento preventivo',
+  'Problema eléctrico','Espera de instrucciones','Otro'
+];
+
+let paroEditIdx = -1; // equipo que está editando paro
+
+function abrirModalParo(eqIdx){
+  paroEditIdx = eqIdx;
+  const turno = document.getElementById('f-turno').value;
+  // Sugerir hora según turno
+  const hIni = turno==='Mañana'?'06:00':turno==='Tarde'?'14:00':'22:00';
+  document.getElementById('mp-ini').value = hIni;
+  document.getElementById('mp-fin').value = '';
+  document.getElementById('mp-motivo').value = MOTIVOS_PARO[0];
+  document.getElementById('mp-obs').value = '';
+  document.getElementById('mp-eq-nombre').textContent = cfg.equipos[eqIdx];
+  document.getElementById('mp-mins').textContent = '';
+  openM('m-paro');
+}
+
+function calcMinsParo(){
+  const ini = document.getElementById('mp-ini').value;
+  const fin = document.getElementById('mp-fin').value;
+  if(!ini||!fin)return;
+  const [hi,mi]=ini.split(':').map(Number);
+  const [hf,mf]=fin.split(':').map(Number);
+  let mins=(hf*60+mf)-(hi*60+mi);
+  if(mins<0)mins+=24*60;
+  document.getElementById('mp-mins').textContent = mins>0?mins+' min parados':'';
+}
+
+function guardarParo(){
+  const ini=document.getElementById('mp-ini').value;
+  const fin=document.getElementById('mp-fin').value;
+  const motivo=document.getElementById('mp-motivo').value;
+  const obs=document.getElementById('mp-obs').value;
+  if(!ini||!fin){toast('Completá hora inicio y fin');return;}
+  const [hi,mi]=ini.split(':').map(Number);
+  const [hf,mf]=fin.split(':').map(Number);
+  let mins=(hf*60+mf)-(hi*60+mi);
+  if(mins<0)mins+=24*60;
+  if(mins<=0){toast('La hora fin debe ser posterior al inicio');return;}
+  parosForm[paroEditIdx].push({ini,fin,mins,motivo,obs});
+  renderParos(paroEditIdx);
+  updDisponibilidad(paroEditIdx);
+  closeM('m-paro');
+  toast('Paro registrado: '+mins+' min');
+}
+
+function renderParos(i){
+  const list=document.getElementById('paros-list-'+i);
+  if(!list)return;
+  list.innerHTML=parosForm[i].map((p,j)=>`
+    <div class="paro-item">
+      <div style="flex:1">
+        <div class="paro-motivo">${p.motivo}</div>
+        <div class="paro-tiempo">${p.ini} → ${p.fin}${p.obs?' · '+p.obs:''}</div>
+      </div>
+      <div class="paro-mins">-${p.mins}min</div>
+      <button onclick="eliminarParo(${i},${j})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0 4px"><i class="ri-close-line"></i></button>
+    </div>`).join('');
+}
+
+function eliminarParo(i,j){
+  parosForm[i].splice(j,1);
+  renderParos(i);
+  updDisponibilidad(i);
+}
+
+function updDisponibilidad(i){
+  const hTurno = parseFloat(document.getElementById('f-horas').value)||getH(document.getElementById('f-turno').value);
+  const minsTurno = hTurno*60;
+  const minsParados = parosForm[i].reduce((a,p)=>a+p.mins,0);
+  const disp = Math.round((minsTurno-minsParados)/minsTurno*100);
+  const el=document.getElementById('eq-disp-'+i);
+  if(!el)return;
+  const cls=disp>=85?'disp-ok':disp>=70?'disp-warn':'disp-bad';
+  el.innerHTML=`<span class="disp-badge ${cls}">Disp. ${disp}%</span>`;
 }
 
 function updTot(){
@@ -1191,6 +1351,13 @@ function editarTurno(idx){
     updTot();
   }
 
+  // Restaurar paros
+  parosForm = cfg.equipos.map((_,i)=>{
+    const eq = r.equipos&&r.equipos[i];
+    return eq&&eq.paros?eq.paros:[];
+  });
+  cfg.equipos.forEach((_,i)=>{renderParos(i);updDisponibilidad(i);});
+
   // Cambiar título del botón guardar
   document.querySelector('#vw-carga .btn.bp.bblock').innerHTML='<i class="ri-save-line"></i> Actualizar Turno';
 
@@ -1214,6 +1381,8 @@ function guardar(){
     op:document.getElementById('eq-op-'+i)?.value||'',
     proc:parseFloat(document.getElementById('eq-proc-'+i)?.value||0),
     rech:parseFloat(document.getElementById('eq-rech-'+i)?.value||0),
+    paros:parosForm[i]||[],
+    minsParados:(parosForm[i]||[]).reduce((a,p)=>a+p.mins,0),
   }));
   const horasVal=parseFloat(document.getElementById('f-horas').value)||getH(turno);
   const datos={fecha,turno,resp,horas:horasVal,
@@ -1255,7 +1424,13 @@ function guardar(){
 
 function limpiar(silent){
   editandoId=null;
-  // Reset botón guardar
+  parosForm=cfg.equipos.map(()=>[]);
+  cfg.equipos.forEach((_,i)=>{
+    const el=document.getElementById('paros-list-'+i);
+    if(el)el.innerHTML='';
+    const disp=document.getElementById('eq-disp-'+i);
+    if(disp)disp.innerHTML='';
+  });
   const btn=document.querySelector('#vw-carga .btn.bp.bblock');
   if(btn)btn.innerHTML='<i class="ri-save-line"></i> Guardar Turno';
   ['p1i','p1f','p2i','p2f','p3ai','p3af','p3bi','p3bf'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
