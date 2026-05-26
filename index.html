@@ -802,7 +802,7 @@ function sv(id,el,type){
   else{document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));}
   if(el)el.classList.add('on');
   if(id==='analisis')renderAnalisis();
-  if(id==='carga')setTimeout(precargarTurno,100);
+  if(id==='carga'){limpiar(true);document.getElementById('f-fecha').value=new Date().toISOString().split('T')[0];document.getElementById('f-resp').value=curUser?.n||'';setTimeout(precargarTurno,300);}
   window.scrollTo(0,0);
 }
 
@@ -871,7 +871,9 @@ function navHoy(){
 function precargarTurno(){
   const fecha=document.getElementById('f-fecha').value;
   const turno=document.getElementById('f-turno').value;
-  if(!fecha||!hist.length)return;
+  if(!fecha)return;
+  // Si hist no está listo, reintentar
+  if(!hist.length){setTimeout(precargarTurno,500);return;}
 
   const existente=hist.find(r=>r.fecha===fecha&&r.turno===turno);
   const aviso=document.getElementById('carga-aviso');
