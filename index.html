@@ -868,19 +868,64 @@ function navHoy(){
 }
 
 function precargarTurno(){
-  if(editandoId)return; // si está editando manualmente, no sobreescribir
   const fecha=document.getElementById('f-fecha').value;
   const turno=document.getElementById('f-turno').value;
   if(!fecha||!hist.length)return;
+
   const existente=hist.find(r=>r.fecha===fecha&&r.turno===turno);
-  if(!existente)return;
+  const aviso=document.getElementById('carga-aviso');
+
+  if(!existente){
+    if(aviso)aviso.style.display='none';
+    // Limpiar form si cambió a fecha sin datos
+    if(!editandoId)limpiar(true);
+    document.getElementById('f-fecha').value=fecha;
+    document.getElementById('f-turno').value=turno;
+    document.getElementById('f-resp').value=curUser?.n||'';
+    return;
+  }
+
+  // Cargar datos existentes en el formulario
+  editandoId=existente._id||null;
+
+  document.getElementById('f-resp').value=existente.resp||curUser?.n||'';
+  document.getElementById('f-horas').value=existente.horas||getH(turno);
+
+  // Pulmones
+  ['p1i','p1f','p2i','p2f','p3ai','p3af','p3bi','p3bf'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.value=existente[id]||0;
+  });
+  ['p1','p2','p3a','p3b'].forEach(p=>calcVar(p));
+
+  // Equipos
+  if(existente.equipos){
+    existente.equipos.forEach((e,i)=>{
+      const op=document.getElementById('eq-op-'+i);
+      const proc=document.getElementById('eq-proc-'+i);
+      const rech=document.getElementById('eq-rech-'+i);
+      if(op)op.value=e.op||'';
+      if(proc)proc.value=e.proc||0;
+      if(rech)rech.value=e.rech||0;
+    });
+    updTot();
+    // Restaurar paros
+    parosForm=cfg.equipos.map((_,i)=>{
+      const eq=existente.equipos[i];
+      return eq&&eq.paros?eq.paros:[];
+    });
+    cfg.equipos.forEach((_,i)=>{renderParos(i);updDisponibilidad(i);});
+  }
+
+  // Cambiar botón
+  const btn=document.querySelector('#vw-carga .btn.bp.bblock');
+  if(btn)btn.innerHTML='<i class="ri-save-line"></i> Guardar cambios';
 
   // Mostrar aviso
-  const aviso=document.getElementById('carga-aviso');
+  const tp=existente.equipos?existente.equipos.reduce((a,e)=>a+(e.proc||0),0):0;
   if(aviso){
-    const tp=existente.equipos.reduce((a,e)=>a+e.proc,0);
     aviso.style.display='';
-    aviso.innerHTML=`<i class="ri-information-line" style="color:var(--blue)"></i> Ya hay datos para este turno — <strong>${tp} u. procesadas</strong>. Lo que cargues se va a <strong>sumar</strong> a lo existente.`;
+    aviso.innerHTML=`<i class="ri-edit-line" style="color:var(--blue)"></i> Editando turno existente — <strong>${tp} u. ya cargadas</strong>. Modificá los valores y guardá.`;
   }
 }
 
@@ -1430,41 +1475,19 @@ function guardar(){
     return;
   }
 
-  const existente = hist.find(r=>r.fecha===fecha&&r.turno===turno);
+  const existenteLocal = hist.find(r=>r.fecha===fecha&&r.turno===turno);
 
-  if(existente&&existente._id){
-    // ACUMULAR sobre el existente
-    const acumulado={
-      fecha,turno,
-      resp:datos.resp,
-      horas:datos.horas,
-      p1i:existente.p1i||0,
-      p1f:datos.p1f>0?datos.p1f:(existente.p1f||0),
-      p2i:existente.p2i||0,
-      p2f:datos.p2f>0?datos.p2f:(existente.p2f||0),
-      p3ai:existente.p3ai||0,
-      p3af:datos.p3af>0?datos.p3af:(existente.p3af||0),
-      p3bi:existente.p3bi||0,
-      p3bf:datos.p3bf>0?datos.p3bf:(existente.p3bf||0),
-      dvhA:(existente.dvhA||0)+(datos.dvhA||0),
-      dvhM:(existente.dvhM||0)+(datos.dvhM||0),
-      equipos:cfg.equipos.map((nombre,i)=>{
-        const prev=(existente.equipos&&existente.equipos[i])||{proc:0,rech:0,paros:[],minsParados:0};
-        const nuevo=datos.equipos[i]||{proc:0,rech:0,paros:[],minsParados:0};
-        const parosJuntos=[...(prev.paros||[]),...(nuevo.paros||[])];
-        return {
-          nombre,
-          op:nuevo.op||prev.op||'',
-          proc:(prev.proc||0)+(nuevo.proc||0),
-          rech:(prev.rech||0)+(nuevo.rech||0),
-          paros:parosJuntos,
-          minsParados:parosJuntos.reduce((a,p)=>a+p.mins,0),
-        };
-      }),
-      ultimaCarga:new Date().toISOString(),
-    };
-    upsertTurno(existente._id, acumulado);
-    toast('✓ Sumado: '+(existente.equipos.reduce((a,e)=>a+e.proc,0))+' + nuevos');
+  if(existenteLocal&&existenteLocal._id){
+    // Leer de Firebase y actualizar (reemplazar con los valores del formulario)
+    showSyncing(true);
+    db.collection('turnos').doc(existenteLocal._id).get().then(doc=>{
+      showSyncing(false);
+      upsertTurno(existenteLocal._id, datos);
+      toast('✓ Turno actualizado');
+    }).catch(e=>{
+      showSyncing(false);
+      toast('⚠ Error: '+e.message);
+    });
   } else {
     // NUEVO
     saveTurno(datos);
