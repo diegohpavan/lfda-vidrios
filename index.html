@@ -415,8 +415,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
           <div class="ct"><div class="ct-l"><i class="ri-calendar-line"></i> Datos generales</div></div>
           <div class="fg">
             <div class="fg fg2">
-              <div><label class="fl">Fecha</label><input type="date" class="fi" id="f-fecha"></div>
-              <div><label class="fl">Turno</label><select class="fs" id="f-turno" onchange="updHorasLabel()"><option>Mañana</option><option>Tarde</option><option>Noche</option></select></div>
+              <div><label class="fl">Fecha</label><input type="date" class="fi" id="f-fecha" onchange="precargarTurno()"></div>
+              <div><label class="fl">Turno</label><select class="fs" id="f-turno" onchange="updHorasLabel();precargarTurno()"><option>Mañana</option><option>Tarde</option><option>Noche</option></select></div>
             </div>
             <div class="fg fg2">
               <div><label class="fl">Responsable</label><input type="text" class="fi" id="f-resp" placeholder="Nombre del líder"></div>
@@ -424,6 +424,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
             </div>
           </div>
         </div>
+
+        <div class="ib" id="carga-aviso" style="display:none;margin-bottom:0"></div>
 
         <div class="c">
           <div class="ct"><div class="ct-l"><i class="ri-stack-line"></i> Pulmones · Stock al inicio y fin del turno</div></div>
@@ -865,7 +867,24 @@ function navHoy(){
   renderAnalisis();
 }
 
-function updHorasLabel(){
+function precargarTurno(){
+  if(editandoId)return; // si está editando manualmente, no sobreescribir
+  const fecha=document.getElementById('f-fecha').value;
+  const turno=document.getElementById('f-turno').value;
+  if(!fecha||!hist.length)return;
+  const existente=hist.find(r=>r.fecha===fecha&&r.turno===turno);
+  if(!existente)return;
+
+  // Mostrar aviso
+  const aviso=document.getElementById('carga-aviso');
+  if(aviso){
+    const tp=existente.equipos.reduce((a,e)=>a+e.proc,0);
+    aviso.style.display='';
+    aviso.innerHTML=`<i class="ri-information-line" style="color:var(--blue)"></i> Ya hay datos para este turno — <strong>${tp} u. procesadas</strong>. Lo que cargues se va a <strong>sumar</strong> a lo existente.`;
+  }
+}
+
+
   const t=document.getElementById('f-turno').value;
   const h=getH(t);
   document.getElementById('f-horas').placeholder=h;
@@ -1399,22 +1418,59 @@ function guardar(){
     equipos
   };
 
-  // Buscar si ya existe un registro para este día+turno
-  const existente = editandoId
-    ? hist.find(r=>r._id===editandoId)
-    : hist.find(r=>r.fecha===fecha&&r.turno===turno);
-
-  if(existente&&existente._id){
-    // ACTUALIZAR registro existente
-    upsertTurno(existente._id, datos);
-    toast('⏳ Actualizando turno...');
-  } else {
-    // CREAR nuevo registro
-    saveTurno(datos);
-    toast('⏳ Guardando turno...');
+  // Buscar en hist[] (siempre sincronizado por onSnapshot)
+  if(editandoId){
+    upsertTurno(editandoId, datos);
+    toast('✓ Turno actualizado');
+    editandoId=null;
+    save();limpiar(true);
+    sv('analisis',document.getElementById('sn-analisis'));
+    document.getElementById('bn-analisis').classList.add('on');
+    document.querySelectorAll('.bi').forEach(b=>{if(b.id!=='bn-analisis')b.classList.remove('on');});
+    return;
   }
 
-  editandoId=null;
+  const existente = hist.find(r=>r.fecha===fecha&&r.turno===turno);
+
+  if(existente&&existente._id){
+    // ACUMULAR sobre el existente
+    const acumulado={
+      fecha,turno,
+      resp:datos.resp,
+      horas:datos.horas,
+      p1i:existente.p1i||0,
+      p1f:datos.p1f>0?datos.p1f:(existente.p1f||0),
+      p2i:existente.p2i||0,
+      p2f:datos.p2f>0?datos.p2f:(existente.p2f||0),
+      p3ai:existente.p3ai||0,
+      p3af:datos.p3af>0?datos.p3af:(existente.p3af||0),
+      p3bi:existente.p3bi||0,
+      p3bf:datos.p3bf>0?datos.p3bf:(existente.p3bf||0),
+      dvhA:(existente.dvhA||0)+(datos.dvhA||0),
+      dvhM:(existente.dvhM||0)+(datos.dvhM||0),
+      equipos:cfg.equipos.map((nombre,i)=>{
+        const prev=(existente.equipos&&existente.equipos[i])||{proc:0,rech:0,paros:[],minsParados:0};
+        const nuevo=datos.equipos[i]||{proc:0,rech:0,paros:[],minsParados:0};
+        const parosJuntos=[...(prev.paros||[]),...(nuevo.paros||[])];
+        return {
+          nombre,
+          op:nuevo.op||prev.op||'',
+          proc:(prev.proc||0)+(nuevo.proc||0),
+          rech:(prev.rech||0)+(nuevo.rech||0),
+          paros:parosJuntos,
+          minsParados:parosJuntos.reduce((a,p)=>a+p.mins,0),
+        };
+      }),
+      ultimaCarga:new Date().toISOString(),
+    };
+    upsertTurno(existente._id, acumulado);
+    toast('✓ Sumado: '+(existente.equipos.reduce((a,e)=>a+e.proc,0))+' + nuevos');
+  } else {
+    // NUEVO
+    saveTurno(datos);
+    toast('✓ Turno nuevo guardado');
+  }
+
   save();
   limpiar(true);
   sv('analisis',document.getElementById('sn-analisis'));
@@ -1425,6 +1481,8 @@ function guardar(){
 function limpiar(silent){
   editandoId=null;
   parosForm=cfg.equipos.map(()=>[]);
+  const aviso=document.getElementById('carga-aviso');
+  if(aviso)aviso.style.display='none';
   cfg.equipos.forEach((_,i)=>{
     const el=document.getElementById('paros-list-'+i);
     if(el)el.innerHTML='';
