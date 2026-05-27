@@ -247,7 +247,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .modo-btn.on{background:var(--text);color:var(--bg);border-radius:9px;margin:3px}
 .msm-row{display:grid;grid-template-columns:80px 1fr 70px 70px 60px;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
 .msm-row:last-child{border-bottom:none}
-.ib{background:var(--bg3);border-radius:8px;padding:12px;font-size:12px;color:var(--text3);margin-bottom:12px}
+.manual-text{font-size:13px;color:var(--text2);line-height:1.6}
+.manual-text p{margin-bottom:8px}
+.manual-text ul,.manual-text ol{padding-left:18px;margin-bottom:8px}
+.manual-text li{margin-bottom:4px}
+.manual-tip{background:#3b82f615;border:1px solid #3b82f630;border-radius:8px;padding:10px 12px;margin-top:10px;font-size:12px;color:var(--text2)}
+.manual-warn{background:#f59e0b15;border:1px solid #f59e0b30;border-radius:8px;padding:10px 12px;margin-top:8px;font-size:12px;color:var(--text2)}
+.manual-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:var(--bg3);cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);transition:all var(--t);touch-action:manipulation}
+.manual-link:active,.manual-link:hover{background:var(--bg4);color:var(--text)}
+.manual-link i{font-size:16px;color:var(--text3)}
+
 .fbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .fbar select,.fbar input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:9px 12px;font-size:13px;font-family:inherit;outline:none;flex:1;min-width:110px}
 
@@ -335,6 +344,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
       <div class="nsec hide" id="sn-sec-admin">Admin</div>
       <div class="ni hide" id="sn-config" onclick="sv('config',this)"><i class="ri-settings-4-line"></i> Configuración</div>
       <div class="ni hide" id="sn-usuarios" onclick="sv('usuarios',this)"><i class="ri-team-line"></i> Usuarios</div>
+  <div class="ni" id="sn-manual" onclick="sv('manual',this)"><i class="ri-book-2-line"></i> Manual</div>
     </nav>
 
     <main class="main">
@@ -522,15 +532,47 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 
       <!-- ═══ USUARIOS ═══ -->
       <div class="vw" id="vw-usuarios">
-        <div class="ph"><div class="pt">Usuarios</div><div class="ps">Acceso y PINs</div></div>
+        <div class="ph"><div class="pt">Usuarios</div><div class="ps">Acceso, PINs y roles</div></div>
+
+        <!-- Agregar nuevo usuario -->
         <div class="c">
-          <div class="ct"><div class="ct-l"><i class="ri-team-line"></i> Miembros</div></div>
+          <div class="ct"><div class="ct-l"><i class="ri-user-add-line"></i> Agregar usuario</div></div>
+          <div class="fg" style="gap:10px">
+            <div class="fg fg2">
+              <div><label class="fl">Nombre completo</label><input type="text" class="fi" id="nu-nombre" placeholder="Apellido Nombre"></div>
+              <div><label class="fl">Cargo</label><input type="text" class="fi" id="nu-cargo" placeholder="Ej: Líder de Sector"></div>
+            </div>
+            <div class="fg fg2">
+              <div><label class="fl">Rol</label>
+                <select class="fs" id="nu-rol">
+                  <option value="Lider">Líder de sector</option>
+                  <option value="Gerente">Gerente</option>
+                  <option value="Admin">Administrador</option>
+                </select>
+              </div>
+              <div><label class="fl">PIN (4 dígitos)</label><input type="password" class="fi" id="nu-pin" placeholder="****" maxlength="4" inputmode="numeric"></div>
+            </div>
+            <button class="btn bp" onclick="agregarUsuario()"><i class="ri-user-add-line"></i> Agregar usuario</button>
+          </div>
+        </div>
+
+        <!-- Lista de usuarios -->
+        <div class="c">
+          <div class="ct"><div class="ct-l"><i class="ri-team-line"></i> Miembros activos</div></div>
           <div id="user-list"></div>
         </div>
+
+        <!-- Tabla de permisos -->
         <div class="c">
-          <div class="ct"><div class="ct-l"><i class="ri-shield-keyhole-line"></i> Permisos</div></div>
+          <div class="ct"><div class="ct-l"><i class="ri-shield-keyhole-line"></i> Permisos por rol</div></div>
           <table style="width:100%;font-size:12px;border-collapse:collapse">
-            <thead><tr style="border-bottom:1px solid var(--border)"><th style="padding:7px 8px;text-align:left;font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase">Rol</th><th style="padding:7px 8px;font-size:10px;color:var(--text3)">Análisis</th><th style="padding:7px 8px;font-size:10px;color:var(--text3)">Cargar</th><th style="padding:7px 8px;font-size:10px;color:var(--text3)">PDF</th><th style="padding:7px 8px;font-size:10px;color:var(--text3)">Admin</th></tr></thead>
+            <thead><tr style="border-bottom:1px solid var(--border)">
+              <th style="padding:7px 8px;text-align:left;font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase">Rol</th>
+              <th style="padding:7px 8px;font-size:10px;color:var(--text3)">Análisis</th>
+              <th style="padding:7px 8px;font-size:10px;color:var(--text3)">Cargar</th>
+              <th style="padding:7px 8px;font-size:10px;color:var(--text3)">PDF</th>
+              <th style="padding:7px 8px;font-size:10px;color:var(--text3)">Admin</th>
+            </tr></thead>
             <tbody>
               <tr><td style="padding:8px"><span class="pill pr">Admin</span></td><td style="padding:8px;color:var(--green)">✓</td><td style="padding:8px;color:var(--green)">✓</td><td style="padding:8px;color:var(--green)">✓</td><td style="padding:8px;color:var(--green)">✓</td></tr>
               <tr><td style="padding:8px"><span class="pill pp">Gerente</span></td><td style="padding:8px;color:var(--green)">✓</td><td style="padding:8px;color:var(--text3)">—</td><td style="padding:8px;color:var(--green)">✓</td><td style="padding:8px;color:var(--text3)">—</td></tr>
@@ -538,6 +580,153 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
             </tbody>
           </table>
         </div>
+      </div>
+
+      <!-- ═══ MANUAL ═══ -->
+      <div class="vw" id="vw-manual">
+        <div class="ph"><div class="pt">Manual de uso</div><div class="ps">Guía completa de la app</div></div>
+
+        <div class="c">
+          <div class="ct"><div class="ct-l"><i class="ri-bookmark-line"></i> Índice</div></div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div class="manual-link" onclick="scrollToSection('m-login')"><i class="ri-login-box-line"></i> Cómo ingresar a la app</div>
+            <div class="manual-link" onclick="scrollToSection('m-carga')"><i class="ri-edit-2-line"></i> Cómo cargar un turno</div>
+            <div class="manual-link" onclick="scrollToSection('m-pulmones')"><i class="ri-stack-line"></i> Qué son los pulmones</div>
+            <div class="manual-link" onclick="scrollToSection('m-analisis')"><i class="ri-pulse-line"></i> Cómo leer el análisis</div>
+            <div class="manual-link" onclick="scrollToSection('m-pdf')"><i class="ri-file-pdf-line"></i> Cómo interpretar el PDF</div>
+            <div class="manual-link" onclick="scrollToSection('m-paros')"><i class="ri-time-line"></i> Registro de paros</div>
+          </div>
+        </div>
+
+        <div class="c" id="m-login">
+          <div class="ct"><div class="ct-l"><i class="ri-login-box-line"></i> Cómo ingresar</div></div>
+          <div class="manual-text">
+            <p>Al abrir la app aparece la pantalla de selección de usuario.</p>
+            <ol>
+              <li>Tocá tu nombre en la lista</li>
+              <li>Ingresá tu PIN de 4 dígitos</li>
+              <li>La app muestra las funciones según tu rol</li>
+            </ol>
+            <div class="manual-tip"><i class="ri-key-line"></i> <strong>PIN olvidado:</strong> El administrador puede cambiarlo desde Admin → Usuarios.</div>
+            <div class="manual-tip"><i class="ri-smartphone-line"></i> <strong>Instalar en el celular:</strong> Abrí la URL en Chrome (Android) o Safari (iPhone) → menú → "Agregar a pantalla de inicio".</div>
+          </div>
+        </div>
+
+        <div class="c" id="m-carga">
+          <div class="ct"><div class="ct-l"><i class="ri-edit-2-line"></i> Cargar un turno</div></div>
+          <div class="manual-text">
+            <p>Solo líderes y administradores pueden cargar turnos.</p>
+            <ol>
+              <li>Tocá <strong>Cargar Turno</strong> en el menú</li>
+              <li>La fecha de hoy aparece automáticamente — cambiarla si es necesario</li>
+              <li>Seleccioná el turno: Mañana / Tarde / Noche</li>
+              <li>Si ya hay datos cargados para ese día+turno, aparecen automáticamente para editar</li>
+              <li>Completá los pulmones (stock al inicio y fin del turno)</li>
+              <li>Completá la producción de cada equipo</li>
+              <li>Tocá <strong>Guardar Turno</strong></li>
+            </ol>
+            <div class="manual-tip"><i class="ri-information-line"></i> <strong>Carga parcial:</strong> Podés cargar solo algunos equipos y volver más tarde a completar el resto. La app guarda todo sin borrar lo anterior.</div>
+            <div class="manual-warn"><i class="ri-alert-line"></i> <strong>Importante:</strong> Si cargás el mismo día+turno, la app abre los datos existentes para editar, no crea un registro nuevo.</div>
+          </div>
+        </div>
+
+        <div class="c" id="m-pulmones">
+          <div class="ct"><div class="ct-l"><i class="ri-stack-line"></i> Qué son los pulmones</div></div>
+          <div class="manual-text">
+            <p>Los <strong>pulmones</strong> son el stock intermedio de vidrios entre dos procesos consecutivos. Miden cuánto material hay "en espera" entre una máquina y la siguiente.</p>
+            <div style="background:var(--bg3);border-radius:8px;padding:12px;margin:10px 0;font-size:12px">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center">
+                <span style="background:var(--bg4);padding:4px 10px;border-radius:6px">Abastecedor</span>
+                <span style="color:var(--blue)">→ P1 →</span>
+                <span style="background:var(--bg4);padding:4px 10px;border-radius:6px">Cortadora</span>
+                <span style="color:var(--blue)">→ P2 →</span>
+                <span style="background:var(--bg4);padding:4px 10px;border-radius:6px">Canteadora</span>
+                <span style="color:var(--blue)">→ P3 →</span>
+                <span style="background:var(--bg4);padding:4px 10px;border-radius:6px">DVH</span>
+              </div>
+            </div>
+            <p><strong>Cómo interpretar el semáforo:</strong></p>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+              <div style="display:flex;align-items:center;gap:10px"><span style="width:12px;height:12px;border-radius:50%;background:var(--green);flex-shrink:0"></span><div><strong>Verde — Flujo normal:</strong> El stock entre procesos es estable. Todo funciona bien.</div></div>
+              <div style="display:flex;align-items:center;gap:10px"><span style="width:12px;height:12px;border-radius:50%;background:var(--amber);flex-shrink:0"></span><div><strong>Ámbar — Acumulando:</strong> Hay más stock de lo normal. La máquina siguiente puede ser más lenta.</div></div>
+              <div style="display:flex;align-items:center;gap:10px"><span style="width:12px;height:12px;border-radius:50%;background:var(--red);flex-shrink:0"></span><div><strong>Rojo — Stock crítico o cuello:</strong> El pulmón está muy bajo (riesgo de parar la línea) o acumula demasiado (cuello de botella aguas abajo).</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="c" id="m-analisis">
+          <div class="ct"><div class="ct-l"><i class="ri-pulse-line"></i> Cómo leer el análisis</div></div>
+          <div class="manual-text">
+            <p><strong>KPIs superiores:</strong></p>
+            <ul>
+              <li><strong>Producción:</strong> Total de unidades procesadas en el período</li>
+              <li><strong>Vel. promedio:</strong> Unidades por hora reales (descontando paros)</li>
+              <li><strong>Rechazos:</strong> Unidades descartadas y su porcentaje</li>
+              <li><strong>DVH total:</strong> Unidades de doble vidrio producidas</li>
+            </ul>
+            <p style="margin-top:10px"><strong>Velocidad por equipo:</strong></p>
+            <ul>
+              <li><span style="color:var(--green)">Verde · MÁS RÁPIDO</span> — La máquina con mayor velocidad del turno</li>
+              <li><span style="color:var(--red)">Rojo · CUELLO</span> — La máquina más lenta, limita la producción de toda la línea</li>
+              <li>La velocidad se calcula sobre el <strong>tiempo disponible real</strong> (turno menos paros)</li>
+            </ul>
+            <p style="margin-top:10px"><strong>Modos de navegación:</strong></p>
+            <ul>
+              <li><strong>Turno:</strong> Ver un turno específico con todos sus detalles</li>
+              <li><strong>Día:</strong> Ver la suma de todos los turnos de un día</li>
+              <li><strong>Mes:</strong> Ver el resumen mensual consolidado</li>
+            </ul>
+            <div class="manual-tip"><i class="ri-information-line"></i> Tocá cualquier fila del historial para ver el detalle completo del turno, incluyendo pulmones, velocidad por equipo y paros registrados.</div>
+          </div>
+        </div>
+
+        <div class="c" id="m-pdf">
+          <div class="ct"><div class="ct-l"><i class="ri-file-pdf-line"></i> Cómo interpretar el PDF</div></div>
+          <div class="manual-text">
+            <p>El reporte PDF tiene 4 secciones:</p>
+            <p style="margin-top:8px"><strong>1. KPIs ejecutivos</strong></p>
+            <p>Los cuatro números más importantes del período: producción total, velocidad promedio, rechazos y DVH. También muestra el mejor día, el cuello de botella más frecuente y los minutos totales de paros.</p>
+            <p style="margin-top:8px"><strong>2. Detalle por turno</strong></p>
+            <p>Tabla con cada turno registrado. La columna <em>u/h</em> es la velocidad real descontando paros. La columna <em>Paros</em> muestra los minutos perdidos por turno.</p>
+            <p style="margin-top:8px"><strong>3. Disponibilidad por equipo</strong></p>
+            <p>Muestra qué porcentaje del tiempo cada máquina estuvo operativa. La barra de color indica:</p>
+            <ul>
+              <li><span style="color:var(--green)">Verde ≥ 85%</span> — Clase mundial. Excelente disponibilidad.</li>
+              <li><span style="color:var(--amber)">Ámbar 70-84%</span> — Aceptable, hay oportunidad de mejora.</li>
+              <li><span style="color:var(--red)">Rojo &lt; 70%</span> — Requiere atención. Muchos paros o tiempos largos.</li>
+            </ul>
+            <p style="margin-top:8px"><strong>4. Registro de paros</strong></p>
+            <p>Lista cronológica de todos los paros registrados con motivo, horario y observaciones. Útil para identificar patrones de falla.</p>
+          </div>
+        </div>
+
+        <div class="c" id="m-paros">
+          <div class="ct"><div class="ct-l"><i class="ri-time-line"></i> Registro de paros</div></div>
+          <div class="manual-text">
+            <p>Al cargar un turno, cada equipo tiene el botón <strong>"+ Registrar paro de máquina"</strong>.</p>
+            <ol>
+              <li>Tocá el botón del equipo que paró</li>
+              <li>Ingresá la hora de inicio y fin del paro</li>
+              <li>Seleccioná el motivo de la lista</li>
+              <li>Agregá observaciones si querés (opcional)</li>
+              <li>Tocá <strong>Guardar paro</strong></li>
+            </ol>
+            <p style="margin-top:8px"><strong>Motivos disponibles:</strong></p>
+            <ul>
+              <li>Rotura mecánica</li>
+              <li>Falta de material</li>
+              <li>Falta de personal</li>
+              <li>Setup / cambio de herramienta</li>
+              <li>Mantenimiento preventivo</li>
+              <li>Problema eléctrico</li>
+              <li>Espera de instrucciones</li>
+              <li>Otro</li>
+            </ul>
+            <div class="manual-tip"><i class="ri-information-line"></i> Podés registrar varios paros por equipo en el mismo turno. La app calcula automáticamente el tiempo disponible real y lo usa para calcular la velocidad u/hora correcta.</div>
+            <div class="manual-warn"><i class="ri-lightbulb-line"></i> <strong>Tip:</strong> Registrar los paros con el motivo correcto permite identificar qué tipos de falla ocurren más seguido y tomar acción preventiva.</div>
+          </div>
+        </div>
+
       </div>
 
     </main>
@@ -549,6 +738,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
     <div class="bi" id="bn-carga" onclick="sv('carga',this,'b')"><i class="ri-edit-2-line"></i><span>Cargar</span></div>
     <div class="bi" id="bn-pdf" onclick="sv('pdf',this,'b')"><i class="ri-file-pdf-line"></i><span>PDF</span></div>
     <div class="bi" id="bn-admin" onclick="sv('config',this,'b')"><i class="ri-settings-4-line"></i><span>Admin</span></div>
+    <div class="bi" id="bn-manual" onclick="sv('manual',this,'b')"><i class="ri-book-2-line"></i><span>Ayuda</span></div>
   </nav>
 </div>
 
@@ -1546,57 +1736,240 @@ function filtPDF(){
 }
 
 function genPDF(){
-  const data=filtPDF();
-  if(!data.length){toast('Sin datos para el filtro');return;}
+  const dataRaw=filtPDF();
+  // Filtrar turnos vacíos (sin producción)
+  const data=dataRaw.filter(r=>r.equipos&&r.equipos.reduce((a,e)=>a+e.proc,0)>0);
+  if(!data.length){toast('Sin datos de producción para el período seleccionado');return;}
   if(typeof window.jspdf==='undefined'){toast('Librería cargando...');return;}
   const {jsPDF}=window.jspdf;
-  const orient=document.getElementById('rep-orient').value;
   const negro=document.getElementById('rep-fondo').value==='negro';
-  const doc=new jsPDF({orientation:orient==='l'?'landscape':'portrait',unit:'mm',format:'a4'});
-  const W=orient==='l'?297:210,H=orient==='l'?210:297;
-  const lc=negro?[255,255,255]:[17,17,17],mc=negro?[100,100,100]:[140,140,140],tc=negro?[195,195,195]:[55,55,55];
-  const br=negro?[25,25,25]:[238,238,238],ra=negro?[15,15,15]:[252,252,252],rb=negro?[20,20,20]:[245,245,245];
-  if(negro){doc.setFillColor(10,10,10);doc.rect(0,0,W,H,'F');doc.setFillColor(20,20,20);doc.rect(0,0,W,42,'F');}
-  else{doc.setFillColor(248,248,248);doc.rect(0,0,W,H,'F');doc.setFillColor(255,255,255);doc.rect(0,0,W,42,'F');}
-  doc.setFont('helvetica','bold');doc.setFontSize(15);doc.setTextColor(...lc);
-  doc.text('LA FÁBRICA DE ABERTURAS',14,15);
-  doc.setDrawColor(...lc);doc.setLineWidth(.6);doc.line(125,5,133,5);doc.line(133,5,133,13);
-  doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(...mc);
-  doc.text(`${cfg.sector} · CONTROL DE PRODUCCIÓN`,14,25);
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=210,H=297;
+
+  // ── COLORES ──
+  const bg    = negro?[10,10,10]:[255,255,255];
+  const bg2   = negro?[20,20,20]:[248,248,248];
+  const bg3   = negro?[30,30,30]:[240,240,240];
+  const lc    = negro?[255,255,255]:[15,15,15];
+  const mc    = negro?[140,140,140]:[120,120,120];
+  const tc    = negro?[200,200,200]:[50,50,50];
+  const green = negro?[34,197,94]:[22,160,60];
+  const amber = negro?[245,158,11]:[180,120,0];
+  const red   = negro?[239,68,68]:[200,40,40];
+  const blue  = negro?[96,165,250]:[37,99,235];
+
+  // ── FONDO ──
+  doc.setFillColor(...bg); doc.rect(0,0,W,H,'F');
+
+  // ── HEADER ──
+  doc.setFillColor(...bg2); doc.rect(0,0,W,44,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.setTextColor(...lc);
+  doc.text('LA FÁBRICA DE ABERTURAS',14,16);
+  doc.setDrawColor(...lc); doc.setLineWidth(0.8);
+  doc.line(137,5,147,5); doc.line(147,5,147,15);
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(...mc);
+  doc.text(`${cfg.sector} · CONTROL DE PRODUCCIÓN`,14,26);
+  doc.text('lafabricadeaberturas.com',14,34);
   const hoy=new Date().toLocaleDateString('es-AR');
-  doc.text(`${hoy} · ${curUser?.n||cfg.resp}`,W-14,15,{align:'right'});
-  doc.text('lafabricadeaberturas.com',W-14,25,{align:'right'});
-  doc.setDrawColor(...br);doc.line(14,43,W-14,43);
-  doc.setFontSize(12);doc.setFont('helvetica','bold');doc.setTextColor(...lc);
+  doc.text(`Emitido: ${hoy}`,W-14,22,{align:'right'});
+  doc.text(`Responsable: ${curUser?.n||cfg.resp}`,W-14,30,{align:'right'});
+  doc.setDrawColor(...(negro?[40,40,40]:[210,210,210]));
+  doc.line(0,44,W,44);
+
+  // ── TÍTULO REPORTE ──
   const tl={dia:'DIARIO',mes:'MENSUAL',rango:'RANGO DE FECHAS',turno:'POR TURNO'};
-  doc.text(`REPORTE DE PRODUCCIÓN · ${tl[rtype]}`,14,55);
-  doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(...mc);
-  doc.text(`${data.length} turno(s)`,14,63);
-  const cols=['Fecha','Turno','Responsable','Procesados','Rechazos','% Rec.','Vel. u/h','DVH Auto','DVH Man.'];
-  const cw=orient==='l'?[22,20,44,20,18,14,18,18,18]:[22,18,36,18,16,12,16,16,14];
-  let y=73;
-  doc.setFillColor(...br);doc.rect(14,y-5,W-28,10,'F');
-  doc.setFontSize(7);doc.setTextColor(...mc);
-  let cx=14;cols.forEach((col,i)=>{doc.text(col,cx+1,y+1);cx+=cw[i];});y+=10;
+  doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.setTextColor(...lc);
+  doc.text(`REPORTE DE PRODUCCIÓN · ${tl[rtype]||''}`,14,56);
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(...mc);
+  doc.text(`${data.length} turno(s) · ${data[data.length-1]?.fecha.split('-').reverse().join('/')} al ${data[0]?.fecha.split('-').reverse().join('/')}`,14,64);
+
+  // ── CALCULAR MÉTRICAS GLOBALES ──
+  const totP=data.reduce((a,r)=>a+r.equipos.reduce((b,e)=>b+e.proc,0),0);
+  const totR=data.reduce((a,r)=>a+r.equipos.reduce((b,e)=>b+e.rech,0),0);
+  const totH=data.reduce((a,r)=>a+(r.horas||getH(r.turno)),0);
+  const totDvhA=data.reduce((a,r)=>a+(r.dvhA||0),0);
+  const totDvhM=data.reduce((a,r)=>a+(r.dvhM||0),0);
+  const pctR=totP>0?Math.round(totR/totP*100):0;
+  const velProm=totH>0?Math.round(totP/totH*10)/10:0;
+  const totParo=data.reduce((a,r)=>a+r.equipos.reduce((b,e)=>b+(e.minsParados||0),0),0);
+
+  // Mejor y peor día
+  const porDia=data.map(r=>({fecha:r.fecha,prod:r.equipos.reduce((a,e)=>a+e.proc,0)}));
+  const mejorDia=porDia.reduce((a,b)=>b.prod>a.prod?b:a,porDia[0]);
+  const peorDia=porDia.filter(d=>d.prod>0).reduce((a,b)=>b.prod<a.prod?b:a,porDia[0]);
+
+  // Cuello de botella más frecuente
+  const cuellos={};
+  data.forEach(r=>{
+    const hRef=r.horas||getH(r.turno);
+    const vels=r.equipos.map(e=>({n:e.nombre,v:e.proc>0?e.proc/(hRef-(e.minsParados||0)/60):0}));
+    const min=vels.filter(e=>e.v>0).reduce((a,b)=>b.v<a.v?b:a,{v:Infinity,n:''});
+    if(min.n)cuellos[min.n]=(cuellos[min.n]||0)+1;
+  });
+  const cuellosSort=Object.entries(cuellos).sort((a,b)=>b[1]-a[1]);
+  const mainCuello=cuellosSort[0]?cuellosSort[0][0]:'—';
+
+  // ── BLOQUE KPIs EJECUTIVOS ──
+  let y=72;
+  const kpis=[
+    {l:'PRODUCCIÓN TOTAL',v:''+totP+' u.',c:lc},
+    {l:'VEL. PROMEDIO',v:velProm+' u/h',c:lc},
+    {l:'RECHAZOS',v:totR+' ('+pctR+'%)',c:pctR>cfg.dangerPct?red:pctR>cfg.warnPct?amber:green},
+    {l:'DVH TOTAL',v:(totDvhA+totDvhM)+' u.',c:blue},
+  ];
+  const kw=43;
+  kpis.forEach((k,i)=>{
+    const kx=14+i*kw;
+    doc.setFillColor(...bg3); doc.rect(kx,y,kw-2,22,'F');
+    doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...mc);
+    doc.text(k.l,kx+3,y+7);
+    doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.setTextColor(...k.c);
+    doc.text(k.v,kx+3,y+18);
+  });
+  y+=28;
+
+  // ── FILA INFO ADICIONAL ──
+  doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(...mc);
+  doc.text(`Mejor día: ${mejorDia?.fecha.split('-').reverse().join('/')} (${mejorDia?.prod} u.)`,14,y);
+  doc.text(`Cuello frecuente: ${mainCuello}`,80,y);
+  doc.text(`Paros: ${totParo} min totales`,148,y);
+  y+=10;
+
+  // ── TABLA DETALLE POR TURNO ──
+  doc.setDrawColor(...(negro?[40,40,40]:[210,210,210]));
+  doc.line(14,y,W-14,y); y+=6;
+  doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...lc);
+  doc.text('DETALLE POR TURNO',14,y); y+=6;
+
+  const cols=['Fecha','Turno','Responsable','Proc.','Rech.','%Rec.','u/h','DVH A','DVH M','Paros'];
+  const cw=[22,18,38,16,14,12,16,14,14,18];
+  doc.setFillColor(...bg3); doc.rect(14,y-4,W-28,10,'F');
+  doc.setFontSize(6.5); doc.setFont('helvetica','bold'); doc.setTextColor(...mc);
+  let cx=14;
+  cols.forEach((c,i)=>{doc.text(c,cx+1,y+2);cx+=cw[i];}); y+=10;
+
   data.forEach((r,ri)=>{
-    doc.setFillColor(...(ri%2===0?ra:rb));doc.rect(14,y-5,W-28,9,'F');
-    doc.setTextColor(...tc);cx=14;
+    if(y>H-40){
+      // Footer antes de nueva página
+      doc.setFillColor(...bg2); doc.rect(0,H-12,W,12,'F');
+      doc.setFontSize(6); doc.setFont('helvetica','normal'); doc.setTextColor(...mc);
+      doc.text(`${cfg.empresa} · ${cfg.sector} · ${cfg.ubicacion}`,14,H-4);
+      doc.text(`Pág. ${doc.internal.getCurrentPageInfo().pageNumber}`,W-14,H-4,{align:'right'});
+      doc.addPage();
+      doc.setFillColor(...bg); doc.rect(0,0,W,H,'F');
+      y=20;
+    }
     const tp=r.equipos.reduce((a,e)=>a+e.proc,0);
     const tr=r.equipos.reduce((a,e)=>a+e.rech,0);
     const pct=tp>0?Math.round(tr/tp*100):0;
-    const vel=Math.round(tp/getH(r.turno)*10)/10;
-    [r.fecha.split('-').reverse().join('/'),r.turno,r.resp,''+tp,''+tr,pct+'%',vel+' u/h',''+(r.dvhA||0),''+(r.dvhM||0)].forEach((v,i)=>{doc.text(v,cx+1,y+1);cx+=cw[i];});
-    y+=9;if(y>H-28){doc.addPage();y=18;}
+    const hRef=r.horas||getH(r.turno);
+    const totMinsP=r.equipos.reduce((a,e)=>a+(e.minsParados||0),0);
+    const horasDisp=Math.max((hRef*60-totMinsP)/60,0.1);
+    const vel=Math.round(tp/horasDisp*10)/10;
+    const rc=pct>cfg.dangerPct?red:pct>cfg.warnPct?amber:green;
+
+    doc.setFillColor(...(ri%2===0?bg:bg3)); doc.rect(14,y-4,W-28,9,'F');
+    doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...tc);
+    cx=14;
+    const vals=[
+      r.fecha.split('-').reverse().join('/'),r.turno,r.resp,
+      ''+tp,''+tr,pct+'%',vel+' u/h',
+      ''+(r.dvhA||0),''+(r.dvhM||0),
+      totMinsP>0?totMinsP+'min':'—'
+    ];
+    vals.forEach((v,i)=>{
+      if(i===5)doc.setTextColor(...rc);
+      else doc.setTextColor(...tc);
+      doc.text(v,cx+1,y+1);cx+=cw[i];
+    });
+    y+=9;
   });
-  y+=4;
-  const totP=data.reduce((a,r)=>a+r.equipos.reduce((b,e)=>b+e.proc,0),0);
-  const totR=data.reduce((a,r)=>a+r.equipos.reduce((b,e)=>b+e.rech,0),0);
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...lc);
-  doc.text(`TOTALES: ${totP} procesados · ${totR} rechazos (${totP>0?Math.round(totR/totP*100):0}%)`,14,y);
-  doc.setFillColor(...(negro?[15,15,15]:[230,230,230]));doc.rect(0,H-13,W,13,'F');
-  doc.setFontSize(6);doc.setFont('helvetica','normal');doc.setTextColor(...mc);
-  doc.text(`${cfg.empresa} · ${cfg.sector} · ${cfg.ubicacion}`,14,H-4);
-  doc.text('Pág. 1',W-14,H-4,{align:'right'});
+
+  // ── TOTALES ──
+  y+=2;
+  doc.setDrawColor(...(negro?[40,40,40]:[210,210,210])); doc.line(14,y,W-14,y); y+=6;
+  doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(...lc);
+  doc.text(`TOTALES: ${totP} procesados · ${totR} rechazos (${pctR}%) · ${totDvhA+totDvhM} DVH · ${velProm} u/h promedio`,14,y);
+  y+=12;
+
+  // ── DISPONIBILIDAD POR MÁQUINA ──
+  if(y<H-60){
+    doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...lc);
+    doc.text('DISPONIBILIDAD Y PAROS POR EQUIPO',14,y); y+=6;
+    doc.setFillColor(...bg3); doc.rect(14,y-4,W-28,10,'F');
+    doc.setFontSize(6.5); doc.setFont('helvetica','bold'); doc.setTextColor(...mc);
+    ['Equipo','Turnos activo','Total proc.','Total rech.','% Rec.','Paros (min)','Disp. %'].forEach((c,i)=>{
+      doc.text(c,14+[0,32,64,90,112,128,158][i],y+2);
+    }); y+=10;
+
+    cfg.equipos.forEach((nombre,ei)=>{
+      const eqData=data.map(r=>r.equipos[ei]||{proc:0,rech:0,minsParados:0,paros:[]});
+      const ep=eqData.reduce((a,e)=>a+(e.proc||0),0);
+      const er=eqData.reduce((a,e)=>a+(e.rech||0),0);
+      const em=eqData.reduce((a,e)=>a+(e.minsParados||0),0);
+      const turnos=eqData.filter(e=>(e.proc||0)>0).length;
+      const totMinsTurno=data.reduce((a,r)=>a+(r.horas||getH(r.turno))*60,0);
+      const disp=totMinsTurno>0?Math.round((totMinsTurno-em)/totMinsTurno*100):100;
+      const epct=ep>0?Math.round(er/ep*100):0;
+      const dc=disp>=85?green:disp>=70?amber:red;
+      const rc2=epct>cfg.dangerPct?red:epct>cfg.warnPct?amber:green;
+
+      doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...tc);
+      doc.text(nombre,14,y+1);
+      doc.text(''+turnos,46,y+1);
+      doc.text(''+ep,64,y+1);
+      doc.text(''+er,90,y+1);
+      doc.setTextColor(...rc2); doc.text(epct+'%',112,y+1);
+      doc.setTextColor(...tc); doc.text(em>0?em+' min':'—',128,y+1);
+      doc.setTextColor(...dc); doc.text(disp+'%',158,y+1);
+
+      // Barra de disponibilidad
+      doc.setFillColor(...bg3); doc.rect(168,y-3,28,6,'F');
+      doc.setFillColor(...dc); doc.rect(168,y-3,Math.round(28*disp/100),6,'F');
+      y+=8;
+    });
+  }
+
+  // ── PAROS DETALLADOS ──
+  const todosParos=[];
+  data.forEach(r=>{
+    r.equipos.forEach(e=>{
+      (e.paros||[]).forEach(p=>{
+        todosParos.push({fecha:r.fecha,turno:r.turno,equipo:e.nombre,...p});
+      });
+    });
+  });
+
+  if(todosParos.length&&y<H-50){
+    y+=6;
+    doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(...lc);
+    doc.text('REGISTRO DE PAROS',14,y); y+=6;
+    doc.setFillColor(...bg3); doc.rect(14,y-4,W-28,10,'F');
+    doc.setFontSize(6.5); doc.setFont('helvetica','bold'); doc.setTextColor(...mc);
+    ['Fecha','Equipo','Motivo','Horario','Duración','Observaciones'].forEach((c,i)=>{
+      doc.text(c,14+[0,24,60,118,142,160][i],y+2);
+    }); y+=10;
+
+    todosParos.slice(0,15).forEach((p,pi)=>{
+      if(y>H-20){return;}
+      doc.setFontSize(6.5); doc.setFont('helvetica','normal'); doc.setTextColor(...tc);
+      doc.text(p.fecha.split('-').reverse().join('/'),14,y+1);
+      doc.text(p.equipo.substring(0,14),38,y+1);
+      doc.text(p.motivo.substring(0,22),62,y+1);
+      doc.text(`${p.ini}→${p.fin}`,118,y+1);
+      doc.setTextColor(...red); doc.text(p.mins+'min',143,y+1);
+      doc.setTextColor(...mc); doc.text((p.obs||'—').substring(0,20),161,y+1);
+      y+=7;
+    });
+  }
+
+  // ── FOOTER ──
+  doc.setFillColor(...bg2); doc.rect(0,H-12,W,12,'F');
+  doc.setDrawColor(...(negro?[40,40,40]:[210,210,210])); doc.line(0,H-12,W,H-12);
+  doc.setFontSize(6); doc.setFont('helvetica','normal'); doc.setTextColor(...mc);
+  doc.text(`${cfg.empresa} · ${cfg.sector} · ${cfg.ubicacion} · Confidencial`,14,H-4);
+  doc.text(`Pág. ${doc.internal.getCurrentPageInfo().pageNumber}`,W-14,H-4,{align:'right'});
+
   doc.save(`Reporte_LFDA_${rtype}_${hoy.replace(/\//g,'-')}.pdf`);
   toast('✓ PDF descargado');
 }
@@ -1609,13 +1982,54 @@ function renderUsers(){
   document.getElementById('user-list').innerHTML=users.map((u,i)=>`
     <div class="ur">
       <div class="uavs" style="${ras[u.r]||''}">${u.av}</div>
-      <div style="flex:1"><div style="font-size:13px;font-weight:500">${u.n}</div><div style="font-size:11px;color:var(--text3)">${u.c}</div></div>
-      <span class="pill ${rp[u.r]||'pn'}" style="margin-right:8px">${rl[u.r]||u.r}</span>
-      <button class="btn bo" style="padding:6px 10px;font-size:12px" onclick="openChangePin(${i})"><i class="ri-key-line"></i></button>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${u.n}</div>
+        <div style="font-size:11px;color:var(--text3)">${u.c} · ${rl[u.r]||u.r}</div>
+      </div>
+      <button class="btn bo" style="padding:6px 10px;font-size:12px;margin-right:4px" onclick="openChangePin(${i})" title="Cambiar PIN"><i class="ri-key-line"></i></button>
+      ${u.r!=='Admin'||users.filter(x=>x.r==='Admin').length>1?`<button class="btn bd" style="padding:6px 10px;font-size:12px" onclick="eliminarUsuario(${i})" title="Eliminar"><i class="ri-delete-bin-line"></i></button>`:''}
     </div>`).join('');
 }
 
-function openChangePin(i){
+function agregarUsuario(){
+  const nombre=document.getElementById('nu-nombre').value.trim();
+  const cargo=document.getElementById('nu-cargo').value.trim();
+  const rol=document.getElementById('nu-rol').value;
+  const pin=document.getElementById('nu-pin').value.trim();
+  if(!nombre){toast('Ingresá un nombre');return;}
+  if(!cargo){toast('Ingresá el cargo');return;}
+  if(!/^\d{4}$/.test(pin)){toast('El PIN debe tener exactamente 4 dígitos');return;}
+  // Generar ID único
+  const id=nombre.toLowerCase().replace(/\s+/g,'').replace(/[^a-z]/g,'').slice(0,10)+'_'+Date.now().toString().slice(-4);
+  // Generar avatar (iniciales)
+  const av=nombre.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
+  users.push({id,n:nombre,c:cargo,r:rol,av,pin});
+  save();
+  renderUsers();
+  // Limpiar form
+  document.getElementById('nu-nombre').value='';
+  document.getElementById('nu-cargo').value='';
+  document.getElementById('nu-pin').value='';
+  // Actualizar login
+  initLogin();
+  toast(`✓ Usuario ${nombre} agregado correctamente`);
+}
+
+function eliminarUsuario(i){
+  if(users[i].r==='Admin'&&users.filter(u=>u.r==='Admin').length<=1){
+    toast('No podés eliminar el único administrador');return;
+  }
+  if(!confirm(`¿Eliminar a ${users[i].n}?`))return;
+  users.splice(i,1);save();renderUsers();initLogin();
+  toast('Usuario eliminado');
+}
+
+function scrollToSection(id){
+  const el=document.getElementById(id);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+
   chgPinIdx=i;
   document.getElementById('m-pin-sub').textContent='Cambiar PIN de '+users[i].n;
   document.getElementById('np1').value='';document.getElementById('np2').value='';
