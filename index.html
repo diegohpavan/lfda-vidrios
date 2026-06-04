@@ -1218,10 +1218,10 @@ function renderAnalisis(){
     const horas=hoy.horas||getH(hoy.turno);
     document.getElementById('pulm-horas').textContent=horas+' h/turno';
     const pulms=[
-      {tag:'P1',lbl:'Abast.→Cortadora',ini:hoy.p1i||0,fin:hoy.p1f||0},
-      {tag:'P2',lbl:'Cort.→Canteadora',ini:hoy.p2i||0,fin:hoy.p2f||0},
-      {tag:'P3a',lbl:'Cant.→DVH Auto',ini:hoy.p3ai||0,fin:hoy.p3af||0},
-      {tag:'P3b',lbl:'Cant.→DVH Man.',ini:hoy.p3bi||0,fin:hoy.p3bf||0},
+      {tag:'P1',lbl:'Pulmón de Corte',ini:hoy.p1i||0,fin:hoy.p1f||0},
+      {tag:'P2',lbl:'Pulmón de Canteadora',ini:hoy.p2i||0,fin:hoy.p2f||0},
+      {tag:'P3a',lbl:'Pulmón DVH Autom.',ini:hoy.p3ai||0,fin:hoy.p3af||0},
+      {tag:'P3b',lbl:'Pulmón DVH Manual',ini:hoy.p3bi||0,fin:hoy.p3bf||0},
     ];
     document.getElementById('pulm-row').innerHTML=pulms.map(p=>{
       const delta=p.fin-p.ini;
@@ -1433,10 +1433,10 @@ function closeSheet(e){
 // ── CARGAR TURNO ──
 function buildPulmForm(){
   const pdata=[
-    {id:'p1',tag:'P1',lbl:'Abastecedor → Cortadora'},
-    {id:'p2',tag:'P2',lbl:'Cortadora → Canteadora'},
-    {id:'p3a',tag:'P3a',lbl:'Canteadora → DVH Auto'},
-    {id:'p3b',tag:'P3b',lbl:'Canteadora → DVH Manual'},
+    {id:'p1',tag:'P1',lbl:'Pulmón de Corte'},
+    {id:'p2',tag:'P2',lbl:'Pulmón de Canteadora'},
+    {id:'p3a',tag:'P3a',lbl:'Pulmón DVH Autom.'},
+    {id:'p3b',tag:'P3b',lbl:'Pulmón DVH Manual'},
   ];
   document.getElementById('pulm-form').innerHTML=pdata.map(p=>`
     <div class="pcard">
