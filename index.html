@@ -827,6 +827,7 @@ const U_DEF = [
   {id:'pbonacci',n:'Pablo Bonacci', c:'Gerente',            r:'Gerente', av:'PB', pin:'1111'},
   {id:'dacevedo',n:'Diego Acevedo', c:'Líder de Sector',    r:'Lider',   av:'DA', pin:'2222'},
   {id:'acordoba',n:'Angel Córdoba', c:'Líder de Sector',    r:'Lider',   av:'AC', pin:'3333'},
+  {id:'pmuchiutti',n:'Pablo Muchiutti',c:'Supervisor',      r:'Lider',   av:'PM', pin:'4444'},
 ];
 const CFG_DEF = {empresa:'La Fábrica de Aberturas',sector:'Línea de Vidrios',ubicacion:'Cañuelas, Buenos Aires',resp:'Diego Pavan · Jefe de Producción',warnPct:8,dangerPct:15,pulmonMin:5,pulmonMax:50,
   hManana:9,hTarde:9,hNoche:9,
@@ -924,7 +925,7 @@ function initLogin(){
     const rl=u.r==='Admin'?'Administrador':u.r==='Gerente'?'Gerente':'Líder';
     return `<div class="urow" id="ur-${u.id}" onclick="selU('${u.id}')">
       <div class="u-av ${cls}">${u.av}</div>
-      <div><div class="u-name">${u.n}</div><div class="u-role">${u.c} · ${rl}</div></div>
+      <div><div class="u-name">${u.n}</div><div class="u-role">${u.c}</div></div>
     </div>`;
   }).join('');
 }
@@ -963,7 +964,7 @@ function ke(){
 function applyRole(){
   const u=curUser;
   const isAdmin=u.r==='Admin', isLider=u.r==='Lider', canLoad=isAdmin||isLider;
-  document.getElementById('who').textContent=u.n.split(' ')[0]+' · '+(isAdmin?'Admin':isLider?'Líder':'Gerente');
+  document.getElementById('who').textContent=u.n.split(' ')[0]+' · '+u.c;
   document.getElementById('f-resp').value=u.n;
   document.getElementById('carga-sub').textContent=u.n+' · '+u.c;
   tog('sn-carga',!canLoad); tog('bn-carga',!canLoad);
