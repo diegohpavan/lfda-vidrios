@@ -273,7 +273,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
   .maq-nombre{width:90px}
 }
 @media(min-width:681px){
-  .kpis{grid-template-columns:repeat(4,1fr)}
+  .kpis{grid-template-columns:repeat(5,1fr)}
   .pulm-row{grid-template-columns:repeat(4,1fr)}
   .pulm-grid{grid-template-columns:repeat(4,1fr)}
 }
@@ -997,7 +997,12 @@ function sv(id,el,type){
   window.scrollTo(0,0);
 }
 
-function toggleTheme(){dark=!dark;document.body.classList.toggle('light',!dark);document.getElementById('thico').className=dark?'ri-moon-line':'ri-sun-line';}
+function toggleTheme(){
+  dark=!dark;
+  document.body.classList.toggle('light',!dark);
+  document.getElementById('thico').className=dark?'ri-moon-line':'ri-sun-line';
+  try{localStorage.setItem('lfda_theme',dark?'dark':'light');}catch(e){}
+}
 
 // ── NAVEGACIÓN ANÁLISIS ──
 let navModo='turno'; // turno | dia | mes
@@ -1189,30 +1194,50 @@ function renderAnalisis(){
   document.getElementById('sec-rechazo').style.display=hayDatos?'':'none';
   document.getElementById('sec-mensual').style.display=esMes?'':'none';
 
-  // ── KPIs (suma de todos los datos del período) ──
-  const totProc=datos.reduce((a,r)=>a+r.equipos.reduce((b,e)=>b+e.proc,0),0);
-  const totRech=datos.reduce((a,r)=>a+r.equipos.reduce((b,e)=>b+e.rech,0),0);
-  const pctRech=totProc>0?Math.round(totRech/totProc*100):0;
+  // ── KPIs por proceso ──
   const totalHoras=datos.reduce((a,r)=>a+(r.horas||getH(r.turno)),0)||1;
-  const velProm=Math.round(totProc/totalHoras*10)/10;
+
+  // Métricas por equipo acumuladas del período
+  const kpiEquipos = cfg.equipos.map((nombre,i)=>{
+    const proc = datos.reduce((a,r)=>a+(r.equipos[i]?.proc||0),0);
+    const rech = datos.reduce((a,r)=>a+(r.equipos[i]?.rech||0),0);
+    // Horas disponibles reales por equipo en todo el período
+    const horasDisp = datos.reduce((a,r)=>{
+      const hTurno = r.horas||getH(r.turno);
+      const minsParados = r.equipos[i]?.minsParados||0;
+      return a + Math.max((hTurno*60 - minsParados)/60, 0);
+    }, 0) || 1;
+    const vel = proc>0 ? Math.round(proc/horasDisp*10)/10 : 0;
+    const pct = proc>0 ? Math.round(rech/proc*100) : 0;
+    return {nombre, proc, rech, vel, pct};
+  });
+
+  // Total general para comparativa
+  const totProc=kpiEquipos.reduce((a,e)=>a+e.proc,0);
+  const totRech=kpiEquipos.reduce((a,e)=>a+e.rech,0);
+  const pctRech=totProc>0?Math.round(totRech/totProc*100):0;
   const totDvhA=datos.reduce((a,r)=>a+(r.dvhA||0),0);
   const totDvhM=datos.reduce((a,r)=>a+(r.dvhM||0),0);
 
   const ayer=hist[navIdx+1]||null;
   const ayerProc=ayer?ayer.equipos.reduce((a,e)=>a+e.proc,0):null;
   const vsAyer=ayerProc&&navModo==='turno'?Math.round((totProc-ayerProc)/ayerProc*100):null;
-  const rClase=pctRech>cfg.dangerPct?'r':pctRech>cfg.warnPct?'a':'g';
 
   document.getElementById('analisis-sub').textContent=navModo==='turno'&&hoy?`${hoy.fecha.split('-').reverse().join('/')} · ${hoy.turno} · ${hoy.resp}`:navLbl;
-  document.getElementById('kpis-grid').innerHTML=`
-    <div class="kpi"><div class="kpi-lbl">Producción</div><div class="kpi-val">${totProc}</div>
-      <div class="kpi-sub">${vsAyer!==null?(vsAyer>=0?'↑':'↓')+Math.abs(vsAyer)+'% vs turno ant.':navModo!=='turno'?datos.length+' turnos':''}</div></div>
-    <div class="kpi"><div class="kpi-lbl">Vel. promedio</div><div class="kpi-val">${velProm}</div>
-      <div class="kpi-sub">${totalHoras} hs · u/hora</div></div>
-    <div class="kpi"><div class="kpi-lbl">Rechazos</div><div class="kpi-val ${rClase}">${totRech}</div>
-      <div class="kpi-sub">${pctRech}% del total</div></div>
-    <div class="kpi"><div class="kpi-lbl">DVH total</div><div class="kpi-val g">${totDvhA+totDvhM}</div>
-      <div class="kpi-sub">Auto: ${totDvhA} · Man: ${totDvhM}</div></div>`;
+
+  // Una tarjeta por equipo
+  document.getElementById('kpis-grid').innerHTML = kpiEquipos.map(e=>{
+    const rc = e.pct>cfg.dangerPct?'r':e.pct>cfg.warnPct?'a':'g';
+    const hasData = e.proc>0;
+    return `<div class="kpi">
+      <div class="kpi-lbl">${e.nombre}</div>
+      <div class="kpi-val">${hasData?e.proc:'—'}</div>
+      <div class="kpi-sub" style="display:flex;flex-direction:column;gap:2px;margin-top:4px">
+        ${hasData?`<span style="color:var(--${rc==='r'?'red':rc==='a'?'amber':'green'})">Rechazo: ${e.rech} (${e.pct}%)</span>`:'<span style="color:var(--text3)">Sin datos</span>'}
+        ${hasData?`<span style="color:var(--text3)">${e.vel} u/h</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
 
   // ── PULMONES (solo turno/día — solo si hay dato real) ──
   if(hoy&&!esMes&&navModo==='turno'){
@@ -2129,6 +2154,11 @@ if('serviceWorker' in navigator){
 
 // ── INIT ──
 load();
+// Restaurar tema guardado
+try{
+  const t=localStorage.getItem('lfda_theme');
+  if(t==='light'){dark=false;document.body.classList.add('light');document.getElementById('thico').className='ri-sun-line';}
+}catch(e){}
 document.getElementById('f-fecha').value=new Date().toISOString().split('T')[0];
 initLogin();
 loadTurnos();
